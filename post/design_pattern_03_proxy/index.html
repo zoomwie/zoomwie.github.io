@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>代理设计模式</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content=" 静态代理: 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。 动态代理: 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。 ">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="代理设计模式">
+    <meta name="twitter:description" content=" 静态代理: 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。 动态代理: 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。 ">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/design_pattern_03_proxy/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="代理设计模式">
+  <meta property="og:description" content=" 静态代理: 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。 动态代理: 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。 ">
+  <meta property="og:url" content="https://www.kitto.fun/post/design_pattern_03_proxy/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/design_pattern_03_proxy/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/design_pattern_03_proxy/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">代理设计模式</h1>
+      <p class="post-meta">@张懂 · Jul 15, 2019 · 5 min read</p>
+    </header>
+    <article class="post-content"><ul>
+<li><strong>静态代理:</strong> 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。</li>
+<li><strong>动态代理:</strong> 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。</li>
+</ul>
+
+<h3 id="情境">情境</h3>
+
+<p>假设，有个汽车类具有<strong>移动</strong>和<strong>停止</strong>两个方法，我们要怎么在不改动源码的情况下：</p>
+
+<p>1.添加日志</p>
+
+<p>2.添加事务</p>
+
+<p><strong>IMovable.java</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">interface</span> IMovable {
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">move</span>();
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stop</span>();
+}</code></pre></div>
+<p><strong>Car.java</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Car <span style="color:#a6e22e">implements</span> IMovable {
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;汽车移动&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;汽车停止&#34;</span>);
+    }
+}</code></pre></div>
+<h2 id="一-静态代理">一、静态代理</h2>
+
+<h3 id="继承">继承</h3>
+
+<h4 id="1-添加日志">1.添加日志</h4>
+
+<p><strong>CarLog.java</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarLog <span style="color:#a6e22e">extends</span> Car {
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行move&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行move完成&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行stop&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行stop完成&#34;</span>);
+    }
+}</code></pre></div>
+<p><strong>Client.java</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Client {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        IMovable <span style="color:#a6e22e">log</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarLog();
+        log.<span style="color:#a6e22e">move</span>();
+        log.<span style="color:#a6e22e">stop</span>();
+    }
+}</code></pre></div>
+<ul>
+<li>从上面的代码可以看出，我们定义了一个类并且继承于<strong>Car</strong></li>
+<li>重写父类中的方法，在super(调用父类中的方法)前后加入打印日志的代码</li>
+</ul>
+
+<p><strong>运行截图:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e9%9d%99%e6%80%81%e4%bb%a3%e7%90%86_%e7%bb%a7%e6%89%bf_%e6%97%a5%e5%bf%97.png"/> 
+</figure>
+
+<h4 id="2-添加事务">2.添加事务</h4>
+
+<p>CarTransaction.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarTransaction <span style="color:#a6e22e">extends</span> Car {
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务开始&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务提交&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务开始&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务提交&#34;</span>);
+    }
+}</code></pre></div>
+<p><strong>运行结果:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e9%9d%99%e6%80%81%e4%bb%a3%e7%90%86_%e7%bb%a7%e6%89%bf_%e4%ba%8b%e5%8a%a1.png"/> 
+</figure>
+
+<ul>
+<li>很明显，对于事务的做法与日志的做法一致</li>
+</ul>
+
+<h4 id="3-先添加日志再开启事务">3.先添加日志再开启事务</h4>
+
+<p>CarLog2Trans.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarLog2Trans <span style="color:#a6e22e">extends</span> CarTransaction{
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行move&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行move完成&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行stop&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行stop完成&#34;</span>);
+    }
+}</code></pre></div>
+<p><strong>运行结果:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e9%9d%99%e6%80%81%e4%bb%a3%e7%90%86_%e7%bb%a7%e6%89%bf_%e5%85%88%e6%97%a5%e5%bf%97%e5%90%8e%e4%ba%8b%e5%8a%a1.png"/> 
+</figure>
+
+<h4 id="4-先开启事务再添加日志">4.先开启事务再添加日志</h4>
+
+<p>CarTrans2Log.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarTrans2Log <span style="color:#a6e22e">extends</span> CarLog {
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务开始&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务提交&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务开始&#34;</span>);
+        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务提交&#34;</span>);
+    }
+}</code></pre></div>
+<p><strong>运行结果:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e9%9d%99%e6%80%81%e4%bb%a3%e7%90%86_%e7%bb%a7%e6%89%bf_%e5%85%88%e4%ba%8b%e5%8a%a1%e5%90%8e%e6%97%a5%e5%bf%97.png"/> 
+</figure>
+
+<ul>
+<li>从上面代码可以看出如果我们添加功能的话，就要创建新的类</li>
+</ul>
+
+<p><strong>情境:</strong> 有四辆汽车A,B,C,D，A汽车要做到先添加日志再开启事务，B汽车要做到先开启事务再添加日志,C汽车只需要添加日志，D汽车只需要开启事务</p>
+
+<p>显然为了完成这样的功能使用继承的方式，我们必须要有四个类才能完成，哪有没有更好的方式呢？</p>
+
+<h3 id="接口-聚合">接口(聚合)</h3>
+
+<h4 id="1-添加日志-1">1.添加日志</h4>
+
+<p>CarLogProxy.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarLogProxy <span style="color:#a6e22e">implements</span> IMovable {
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">IMovable</span> movable;
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CarLogProxy</span>(IMovable <span style="color:#a6e22e">movable</span>) {
+        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> movable;
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行move&#34;</span>);
+        movable.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行move完成&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行stop&#34;</span>);
+        movable.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行stop完成&#34;</span>);
+    }
+}</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Client.<span style="color:#a6e22e">java</span>
+
+    <span style="color:#a6e22e">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Client</span> {
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+            IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+            IMovable <span style="color:#a6e22e">log</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarLogProxy(movable);
+            log.<span style="color:#a6e22e">move</span>();
+            log.<span style="color:#a6e22e">stop</span>();
+        }
+    }</code></pre></div>
+<ul>
+<li>从上面的代码可以看出，我们实现了IMovable接口(目标接口)，并传入了需要被代理的对象</li>
+</ul>
+
+<h4 id="2-添加事务-1">2.添加事务</h4>
+
+<p>CarTransactionProxy.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> CarTransactionProxy <span style="color:#a6e22e">implements</span> IMovable {
+
+  	<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">IMovable</span> movable;
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CarTransactionProxy</span>(IMovable <span style="color:#a6e22e">movable</span>) {
+        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> movable;
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> move() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务开始&#34;</span>);
+        movable.<span style="color:#a6e22e">move</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;move事务提交&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> stop() {
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务开始&#34;</span>);
+        movable.<span style="color:#a6e22e">stop</span>();
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;stop事务提交&#34;</span>);
+    }
+}</code></pre></div>
+<p>Client.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Client {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+        IMovable <span style="color:#a6e22e">transaction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarTransactionProxy(movable);
+        transaction.<span style="color:#a6e22e">move</span>();
+        transaction.<span style="color:#a6e22e">stop</span>();
+    }
+}</code></pre></div>
+<h4 id="3-先添加日志再开启事务-1">3.先添加日志再开启事务</h4>
+
+<p>Client.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Client {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+        IMovable <span style="color:#a6e22e">transaction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarTransactionProxy(movable);
+        IMovable <span style="color:#a6e22e">log</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarLogProxy(transaction);
+        log.<span style="color:#a6e22e">move</span>();
+        log.<span style="color:#a6e22e">stop</span>();
+    }
+}</code></pre></div>
+<h4 id="4-先开启事务再添加日志-1">4.先开启事务再添加日志</h4>
+
+<p>Client.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Client {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+        IMovable <span style="color:#a6e22e">log</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarLogProxy(movable);
+        IMovable <span style="color:#a6e22e">transaction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CarTransactionProxy(log);
+        transaction.<span style="color:#a6e22e">move</span>();
+        transaction.<span style="color:#a6e22e">stop</span>();
+    }
+}</code></pre></div>
+<ul>
+<li>从3与4的<strong>Client</strong>可以看出，使用聚合的办法就只要用两个类就能实现需求</li>
+<li>显然，使用实现<strong>目标接口</strong>的方式进行代理，让代理和被代理对象之间都可以相互灵活转换</li>
+<li>所以一般静态代理使用<strong>聚合</strong>的方式进行实现，使用<strong>继承</strong>的方式多多少少有些过于笨重</li>
+</ul>
+
+<p>想必认真的人都看的出来，静态代理的方式随着功能的增多，必然要生成更多的代理对象，这样不利于维护。而且，就目前的要求来看，对 <strong>move()</strong> 和 <strong>stop()</strong> 两个方法添加日志，其中代码出现了冗余的情况，无法复用。那么有什么方式可以解决呢？</p>
+
+<h2 id="二-动态代理">二、动态代理</h2>
+
+<p>Client.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> Client {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+        IMovable <span style="color:#a6e22e">logProxy</span> <span style="color:#f92672">=</span> (IMovable) Proxy.<span style="color:#a6e22e">newProxyInstance</span>(Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getClassLoader</span>(), Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getInterfaces</span>(),
+                <span style="color:#66d9ef">new</span> InvocationHandler() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Object</span> invoke(Object <span style="color:#a6e22e">proxy</span>, Method <span style="color:#a6e22e">method</span>, Object[] <span style="color:#a6e22e">args</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Throwable</span> {
+                        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行&#34;</span> <span style="color:#f92672">+</span> method.<span style="color:#a6e22e">getName</span>());
+                        Object <span style="color:#a6e22e">invoke</span> <span style="color:#f92672">=</span>method.<span style="color:#a6e22e">invoke</span>(movable, args);
+                        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行&#34;</span> <span style="color:#f92672">+</span> method.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;完成&#34;</span>);
+                        <span style="color:#66d9ef">return</span> invoke;
+                    }
+                });
+        logProxy.<span style="color:#a6e22e">move</span>();
+        logProxy.<span style="color:#a6e22e">stop</span>();
+        
+        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>();
+
+        IMovable <span style="color:#a6e22e">transProxy</span> <span style="color:#f92672">=</span> (IMovable) Proxy.<span style="color:#a6e22e">newProxyInstance</span>(Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getClassLoader</span>(), Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getInterfaces</span>(),
+                <span style="color:#66d9ef">new</span> InvocationHandler() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Object</span> invoke(Object <span style="color:#a6e22e">proxy</span>, Method <span style="color:#a6e22e">method</span>, Object[] <span style="color:#a6e22e">args</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Throwable</span> {
+                        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(method.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;开启事务&#34;</span>);
+                        Object <span style="color:#a6e22e">invoke</span> <span style="color:#f92672">=</span> method.<span style="color:#a6e22e">invoke</span>(logProxy, args);
+                        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(method.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;事务提交&#34;</span>);
+                        <span style="color:#66d9ef">return</span> invoke;
+                    }
+                });
+        transProxy.<span style="color:#a6e22e">move</span>();
+        transProxy.<span style="color:#a6e22e">stop</span>();
+    }
+}</code></pre></div>
+<p>​<br />
+<strong>运行结果:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e5%8a%a8%e6%80%81%e4%bb%a3%e7%90%86.png"/> 
+</figure>
+
+<ul>
+<li>从运行结果来看，我们使用动态代理实现了上面静态代理的例子，且没有编写多余的类</li>
+<li>从上面的代码可以看出，要使用动态代理就必须要有目标接口</li>
+<li>在<code>InvocationHandler</code> 的方法中可以获取要执行的 <strong>Method</strong> 实例</li>
+<li>通过 <strong>Method</strong> 的实例可以通过反射来执行，不过要传入被代理对象</li>
+<li>在反射前后可以进行添加日志和事务的操作</li>
+<li>而且也可以灵活的让进行代理对象与被代理对象之间的转换</li>
+<li>由于使用了反射，对性能有一定的损耗</li>
+</ul>
+
+<h3 id="动态代理源码解析">动态代理源码解析</h3>
+
+<p>对于动态代理的源码其实最重要的就是下面两个方法，我们下面开始对他们进行深入分析，做到知其然知其所以然。</p>
+
+<p>Proxy.newProxyInstance 部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> Object <span style="color:#a6e22e">newProxyInstance</span>(ClassLoader <span style="color:#a6e22e">loader</span>,
+                                      Class<span style="color:#f92672">&lt;?&gt;</span>[] interfaces,
+                                      InvocationHandler <span style="color:#a6e22e">h</span>)
+    <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IllegalArgumentException</span>
+{
+     ...
+     
+     Class<span style="color:#f92672">&lt;?&gt;</span> cl <span style="color:#f92672">=</span> getProxyClass0(loader, intfs);
+     <span style="color:#66d9ef">try</span> {
+        ...
+        
+        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">Constructor</span><span style="color:#f92672">&lt;?&gt;</span> cons <span style="color:#f92672">=</span> cl.<span style="color:#a6e22e">getConstructor</span>(constructorParams);
+        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">InvocationHandler</span> ih <span style="color:#f92672">=</span> h;
+        ...
+                <span style="color:#66d9ef">return</span> cons.<span style="color:#a6e22e">newInstance</span>(<span style="color:#66d9ef">new</span> Object[]{h});
+        }<span style="color:#66d9ef">catch</span> (IllegalAccessException<span style="color:#f92672">|</span>InstantiationException <span style="color:#a6e22e">e</span>){
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InternalError(e.<span style="color:#a6e22e">toString</span>(), e);
+        }
+        ...
+}</code></pre></div>
+<ul>
+<li><strong>loader</strong> 定义代理类的类加载器</li>
+<li><strong>interfaces</strong> 代理类要实现的接口列表</li>
+<li><strong>h</strong>  指派方法调用的调用处理程序(<strong>注:动态代理的关键</strong>)</li>
+<li>将其他多余的部分代码忽略，找核心的代码(因为有些偏底层我也看不懂 <strong>-.-</strong> )</li>
+<li><strong>getProxyClass0(loader, intfs);</strong> 获得代理类</li>
+<li><strong>cl.getConstructor(constructorParams);</strong> 获得代理类的构造方法</li>
+<li><code>cons.newInstance(new Object[]{h});</code> 反射生成代理对象，并传入 <strong>InvocationHandler</strong></li>
+</ul>
+
+<p>所以我们往下看看它是如何得到代理对象的</p>
+
+<p>Proxy.getProxyClass0 代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">      <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">WeakCache</span><span style="color:#f92672">&lt;</span>ClassLoader, Class<span style="color:#f92672">&lt;?&gt;</span>[], Class<span style="color:#f92672">&lt;?&gt;&gt;</span>
+    proxyClassCache <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> WeakCache<span style="color:#f92672">&lt;&gt;</span>(<span style="color:#66d9ef">new</span> KeyFactory(), <span style="color:#66d9ef">new</span> ProxyClassFactory());
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Class<span style="color:#f92672">&lt;?&gt;</span> getProxyClass0(ClassLoader <span style="color:#a6e22e">loader</span>,
+                                       Class<span style="color:#f92672">&lt;?&gt;</span>... interfaces) {
+    <span style="color:#66d9ef">if</span> (interfaces.<span style="color:#a6e22e">length</span> <span style="color:#f92672">&gt;</span> 65535) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;interface limit exceeded&#34;</span>);
+    }
+
+    <span style="color:#75715e">// If the proxy class defined by the given loader implementing
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// the given interfaces exists, this will simply return the cached copy;
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// otherwise, it will create the proxy class via the ProxyClassFactory
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> proxyClassCache.<span style="color:#a6e22e">get</span>(loader, interfaces);</code></pre></div>
+<p>​
+- <strong>注释翻译:</strong> 如果存在给定接口的给定装入器定义的代理类存在，则只返回缓存的副本；否则，它将通过<code>proxyclassfactory</code>创建代理类</p>
+
+<p>所以我们就要进一步分析 (proxyClassCache)<strong>WeakCache</strong> 类是怎么进行缓存的。(个人能力有限对于<strong>WeakCache</strong>还有较多疑惑，之后会进行总结更新)</p>
+
+<p>知道了是得到创建代理类，我们继续往下分析</p>
+
+<p>InvocationHandler.java</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Object</span> invoke(Object <span style="color:#a6e22e">proxy</span>, Method <span style="color:#a6e22e">method</span>, Object[] <span style="color:#a6e22e">args</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Throwable</span>;</code></pre></div>
+<ul>
+<li><strong>proxy</strong> 在其上调用方法的代理实例</li>
+<li><strong>method</strong> 对应于在代理实例上调用的接口方法的 Method 实例，目标对象被调用的方法</li>
+<li><strong>args</strong> 包含传入代理实例上方法调用的参数值的对象数组</li>
+</ul>
+
+<p><strong>InvocationHandler</strong>用来连接代理对象与目标对象</p>
+
+<p><strong>分析代理类对象</strong>
+我们可以使用如下代码获取代理类$Proxy0.class文件</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+	System.<span style="color:#a6e22e">getProperties</span>().<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;sun.misc.ProxyGenerator.saveGeneratedFiles&#34;</span>, <span style="color:#e6db74">&#34;true&#34;</span>);
+	System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;$Proxy0.class: &#34;</span><span style="color:#f92672">+</span>Proxy.<span style="color:#a6e22e">getProxyClass</span>(Inter.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getClassLoader</span>(), Inter.<span style="color:#a6e22e">class</span>));
+	<span style="color:#75715e">//
+</span><span style="color:#75715e"></span>    IMovable <span style="color:#a6e22e">movable</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Car();
+    IMovable <span style="color:#a6e22e">logProxy</span> <span style="color:#f92672">=</span> (IMovable) Proxy.<span style="color:#a6e22e">newProxyInstance</span>(Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getClassLoader</span>(), Car.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getInterfaces</span>(),
+            <span style="color:#66d9ef">new</span> InvocationHandler() {
+                <span style="color:#a6e22e">@Override</span>
+                <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Object</span> invoke(Object <span style="color:#a6e22e">proxy</span>, Method <span style="color:#a6e22e">method</span>, Object[] <span style="color:#a6e22e">args</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Throwable</span> {
+                    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;开始执行&#34;</span> <span style="color:#f92672">+</span> method.<span style="color:#a6e22e">getName</span>());
+                    Object <span style="color:#a6e22e">invoke</span> <span style="color:#f92672">=</span>method.<span style="color:#a6e22e">invoke</span>(movable, args);
+                    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;执行&#34;</span> <span style="color:#f92672">+</span> method.<span style="color:#a6e22e">getName</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;完成&#34;</span>);
+                    <span style="color:#66d9ef">return</span> invoke;
+                }
+            });
+    logProxy.<span style="color:#a6e22e">move</span>();
+    logProxy.<span style="color:#a6e22e">stop</span>();
+}</code></pre></div>
+<p><strong>运行结果:</strong></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/design_pattern_03_proxy/%e8%8e%b7%e5%8f%96$Proxy0.class%e6%96%87%e4%bb%b6%e8%bf%90%e8%a1%8c%e6%88%aa%e5%9b%be.png"/> 
+</figure>
+
+<ul>
+<li><code>System.getProperties().put(&quot;sun.misc.ProxyGenerator.saveGeneratedFiles&quot;, &quot;true&quot;);</code> 打开保存开关</li>
+<li><code>System.out.println(&quot;$Proxy0.class全名: &quot;+Proxy.getProxyClass(IMovable.class.getClassLoader(), IMovable.class));</code> 可以通过打印信息获取<strong>class</strong>在项目中路径</li>
+<li>关于这个类是如何生成的，需要往下跟踪 <code>Proxy.getProxyClass0</code>方法中的<code>proxyClassCache.get(loader, interfaces)</code>,这与缓存相挂钩未进行详细分析(之后还会更新文章)。</li>
+</ul>
+
+<p>在得到 <strong>$Proxy0.class</strong> 之后我们可以使用一些工具将class进行反编译,这里我使用了<strong>JD_GUI</strong></p>
+
+<p>$Proxy0.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">$Proxy0</span>
+  <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Proxy</span>
+  <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">IMovable</span>
+{
+  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Method <span style="color:#a6e22e">m1</span>;
+  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Method <span style="color:#a6e22e">m4</span>;
+  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Method <span style="color:#a6e22e">m2</span>;
+  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Method <span style="color:#a6e22e">m3</span>;
+  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> Method <span style="color:#a6e22e">m0</span>;
+  
+  <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">$Proxy0</span>(InvocationHandler <span style="color:#a6e22e">paramInvocationHandler</span>)
+    <span style="color:#66d9ef">throws</span> 
+  {
+    <span style="color:#66d9ef">super</span>(paramInvocationHandler);
+  }
+  
+  ...
+  
+  <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">move</span>()
+    <span style="color:#66d9ef">throws</span> 
+  {
+    <span style="color:#66d9ef">try</span>
+    {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">invoke</span>(<span style="color:#66d9ef">this</span>, m4, <span style="color:#66d9ef">null</span>);
+      <span style="color:#66d9ef">return</span>;
+    }
+    <span style="color:#66d9ef">catch</span> ...
+  }
+  
+
+  
+  <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">stop</span>()
+    <span style="color:#66d9ef">throws</span> 
+  {
+    <span style="color:#66d9ef">try</span>
+    {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">invoke</span>(<span style="color:#66d9ef">this</span>, m3, <span style="color:#66d9ef">null</span>);
+      <span style="color:#66d9ef">return</span>;
+    }
+    <span style="color:#66d9ef">catch</span> ...
+  }
+  
+    ...
+  
+  <span style="color:#66d9ef">static</span>
+  {
+    <span style="color:#66d9ef">try</span>
+    {
+      m1 <span style="color:#f92672">=</span> Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;java.lang.Object&#34;</span>).<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;equals&#34;</span>, <span style="color:#66d9ef">new</span> Class[] { Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;java.lang.Object&#34;</span>) });
+      m4 <span style="color:#f92672">=</span> Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;com.zzz.proxy.IMovable&#34;</span>).<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;move&#34;</span>, <span style="color:#66d9ef">new</span> Class[0]);
+      m2 <span style="color:#f92672">=</span> Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;java.lang.Object&#34;</span>).<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;toString&#34;</span>, <span style="color:#66d9ef">new</span> Class[0]);
+      m3 <span style="color:#f92672">=</span> Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;com.zzz.proxy.IMovable&#34;</span>).<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;stop&#34;</span>, <span style="color:#66d9ef">new</span> Class[0]);
+      m0 <span style="color:#f92672">=</span> Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;java.lang.Object&#34;</span>).<span style="color:#a6e22e">getMethod</span>(<span style="color:#e6db74">&#34;hashCode&#34;</span>, <span style="color:#66d9ef">new</span> Class[0]);
+      <span style="color:#66d9ef">return</span>;
+    }
+    <span style="color:#66d9ef">catch</span> ...
+  }
+}</code></pre></div>
+<ul>
+<li>构造方法传入<code>InvocationHandler</code></li>
+<li>在静态代码块中，可以看到我们接口定义的 <strong>move</strong> 和 <strong>stop</strong> 分别为 <strong>m4</strong> 和 <strong>m3</strong></li>
+<li>所以在我们调用代理对象时，就使用 <code>InvocationHandler</code> 回调出去，而 <code>invoke</code> 方法正是由我们实现的。</li>
+</ul>
+
+<p><strong>学习资料:</strong></p>
+
+<blockquote>
+<p><a href="https://www.cnblogs.com/liuyun1995/p/8144676.html">https://www.cnblogs.com/liuyun1995/p/8144676.html</a></p>
+
+<p><a href="https://www.jianshu.com/p/9f5566b5e7fb">https://www.jianshu.com/p/9f5566b5e7fb</a></p>
+</blockquote></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="tag">面向对象</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="tag">设计模式</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        This post was published <strong>168</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

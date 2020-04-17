@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>Android图像半色调处理</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content="本文介绍在工作期间接触的图像处理，在此做一个总结。
+">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="Android图像半色调处理">
+    <meta name="twitter:description" content="本文介绍在工作期间接触的图像处理，在此做一个总结。
+">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/bayer/%E7%81%B0%E5%BA%A6%E5%9B%BE%E5%83%8F%E6%95%88%E6%9E%9C.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Android图像半色调处理">
+  <meta property="og:description" content="本文介绍在工作期间接触的图像处理，在此做一个总结。
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/bayer/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/bayer/%E7%81%B0%E5%BA%A6%E5%9B%BE%E5%83%8F%E6%95%88%E6%9E%9C.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/bayer/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">Android图像半色调处理</h1>
+      <p class="post-meta">@张懂 · Nov 21, 2019 · 4 min read</p>
+    </header>
+    <article class="post-content"><p>本文介绍在工作期间接触的图像处理，在此做一个总结。</p>
+
+<h3 id="一-知识点">一、知识点</h3>
+
+<h4 id="1-图像深度">1.<strong>图像深度</strong></h4>
+
+<p>​   每个像素所用的位数，如二值图像的像素只能为0或1(非黑即白)，只需用1bit就能表示，所以图像深度为1bit</p>
+
+<h4 id="2-图像通道">2.图像通道</h4>
+
+<p>以Android中的bitmap为例</p>
+
+<ul>
+<li>ARGB_8888:
+
+<ul>
+<li>由ARGB四个颜色通道组成，深度为32bit</li>
+<li>每一个通道都占用8bit</li>
+<li>每一个通道的取值范围[0, 255]</li>
+<li>BitmapFactory不设置Options时读取的图片默认为ARGB_8888</li>
+</ul></li>
+<li>RGB_565:
+
+<ul>
+<li>有RGB三个颜色通道组成，深度为16bit</li>
+<li>R通道占用5bit、G通道占用6bit、B通道占用5bit</li>
+<li>R通道取值范围[0,31]、G通道的取值范围[0,63]、B通道的取值范围[0,31]</li>
+</ul></li>
+</ul>
+
+<p>以下为具体的功能实现，<a href="https://gitee.com/kittoZ/BayerDemo">代码传送门</a> /<a href="https://gitee.com/kittoZ/BayerDemo">Demo地址</a>(Kotlin实现，后续会将算法通过JNI移植到C++上)</p>
+
+<h3 id="二-argb-8888的32bit图像转换为８bit灰度图片">二、ARGB_8888的32bit图像转换为８bit灰度图片</h3>
+
+<blockquote>
+<p>“在RGB模型中，如果R=G=B时，则彩色表示一种灰度颜色，其中R=G=B的值叫灰度值”　－百度百科</p>
+</blockquote>
+
+<p>Android中获取bitmap中像素，每个像素的位数为32bit</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> sourceArray = IntArray(width * height)   
+source.getPixels(sourceArray, <span style="color:#ae81ff">0</span>, width, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, width, height)</code></pre></div>
+<p>ARGB_8888的数据信息格式为 0xAARRGGBB，从像素中的到R、G、B的值用到与运算和移位运算。使用与运算屏蔽其他位，再将有效位右移到低位，如下代码所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> red = pixel and <span style="color:#ae81ff">0x00FF0000</span> shr <span style="color:#ae81ff">16</span>
+<span style="color:#66d9ef">val</span> green = pixel and <span style="color:#ae81ff">0x0000FF00</span> shr <span style="color:#ae81ff">8</span>
+<span style="color:#66d9ef">val</span> blue = pixel and <span style="color:#ae81ff">0x000000FF</span></code></pre></div>
+<p>以上介绍了如何获取从像素中得到RGB值，那么下面接介绍一下将RGB转灰度的几种方法</p>
+
+<h4 id="1-平均值">1.平均值</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> gray = (red + green + blue) / <span style="color:#ae81ff">3</span></code></pre></div>
+<h4 id="2-加权平均-常用算法">2.加权平均(常用算法)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> gray = (red * <span style="color:#ae81ff">0.299</span> + green * <span style="color:#ae81ff">0.587</span> + blue * <span style="color:#ae81ff">0.114</span>).toInt()</code></pre></div>
+<h4 id="3-最大值">3.最大值</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> array = arrayOf(red, green, blue)
+<span style="color:#66d9ef">val</span> gray = array.max()<span style="color:#f92672">!!</span></code></pre></div>
+<h4 id="4-最小值">4.最小值</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> array = arrayOf(red, green, blue)
+<span style="color:#66d9ef">val</span> gray = array.min()<span style="color:#f92672">!!</span></code></pre></div>
+<h4 id="5-最大最小值">5.最大最小值</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> array = arrayOf(red, green, blue)
+<span style="color:#66d9ef">val</span> min = array.min()<span style="color:#f92672">!!</span>
+<span style="color:#66d9ef">val</span> max = array.max()<span style="color:#f92672">!!</span>
+<span style="color:#66d9ef">val</span> gray = (min + max) / <span style="color:#ae81ff">2</span></code></pre></div>
+<h4 id="6-单一通道-红">6.单一通道(红)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> gray = red</code></pre></div>
+<h4 id="7-单一通道-绿">7.单一通道(绿)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> gray = green</code></pre></div>
+<h4 id="8-单一通道-蓝">8.单一通道(蓝)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> gray = blue</code></pre></div>
+<h4 id="灰度效果展示">灰度效果展示</h4>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/bayer/%e7%81%b0%e5%ba%a6%e5%9b%be%e5%83%8f%e6%95%88%e6%9e%9c.png"/> 
+</figure>
+
+<h4 id="8bit灰度图片保存">*.8bit灰度图片保存</h4>
+
+<p>上面介绍了通过ARGB_8888转为8bit灰度的方法，那我们应该怎么保存图片呢？</p>
+
+<p>方法一：生成8bit的bmp保存到本地（另起篇章文章未完成)</p>
+
+<p>方法二：将8bit的数据恢复到32bitARGB_8888的Bitmap上，主要需要理解R=G=B，通过或运算与移位运算将8bit转化为32bit的数据。使用移位运算将gray值移动到R、G、B对应的有效位上，再使用或运算将值设置到一个非透明的0xFF000000图片中，其中A透明度为0xFF，如下代码所示:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> resultArray = grayArray.map {
+    <span style="color:#ae81ff">0xFF000000</span>.toInt() or (it shl <span style="color:#ae81ff">16</span>) or (it shl <span style="color:#ae81ff">8</span>) or it
+ }.toIntArray()
+<span style="color:#75715e">//
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> resultBitmap = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
+resultBitmap.setPixels(resultArray, <span style="color:#ae81ff">0</span>, width, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, width, height)</code></pre></div>
+<h3 id="三-8bit-加权平均-灰度图片半色调算法">三、8bit(加权平均)灰度图片半色调算法</h3>
+
+<p>在我们生活中存在一些图像输出设备，只能输出1bit的二值图像，如常见的黑白喷墨打印机、黑白激光打印机。所以我们需要将一张连续的图像转化为一张与其相似的二值图像，这个过程叫做半色调。</p>
+
+<p>从ARGB_8888中得到图片8bit灰度值,因为R=G=B=Gray，所以我们只需取R、G、B其中一个值即可，代码中我使用B的值：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> grayPixel = pixel and <span style="color:#ae81ff">0x000000FF</span></code></pre></div>
+<h4 id="1bit二值图片保存">*.1bit二值图片保存</h4>
+
+<p>方法一、生成1bit的bmp保存到本地(另起篇章文章未完成)</p>
+
+<p>方法二、将1bit的数据恢复到32bitARGB_8888的Bitmap上，在R=G=B的同时还需要注意0其实就是黑色，1代表的就是白色(在bmp中可由颜色表来决定)，所以我们可以直接用0xFF000000代表黑色、0xFFFFFFFF代表白色，如下代码所示</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> resultArray = bayerArray.map {
+    <span style="color:#66d9ef">if</span> (it == <span style="color:#ae81ff">1</span>) {
+        <span style="color:#ae81ff">0xFFFFFFFF</span>.toInt()
+    } <span style="color:#66d9ef">else</span> {
+        <span style="color:#ae81ff">0xFF000000</span>.toInt()
+    }
+}.toIntArray()
+<span style="color:#75715e">//
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+resultBitmap.setPixels(resultArray, <span style="color:#ae81ff">0</span>, width, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, width, height)</code></pre></div>
+<h4 id="1-简单阈值比较算法">1.简单阈值比较算法</h4>
+
+<p>简单阈值的做法就是通过固定一个阈值来进行判断，目前灰度值的取值范围为<code>[0,255]</code>,我们有两种做法：</p>
+
+<ul>
+<li>将灰度值除以<code>255.0f</code>，把值压缩到<code>[0,1]</code>，取阈值<code>0.5</code>（可自定义），大于等于<code>0.5</code>就取<code>1</code>，小于<code>0.5</code>则取<code>0</code></li>
+
+<li><p>直接取阈值<code>128</code>(可自定义)，大于等于<code>128</code>就取<code>1</code>，小于<code>128</code>则取0</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin">grayArray.forEachIndexed { index, pixel -&gt;
+   bayerArray[index] = <span style="color:#66d9ef">if</span> (pixel and <span style="color:#ae81ff">0x000000FF</span> &gt; <span style="color:#ae81ff">128</span>) {
+        <span style="color:#ae81ff">1</span>
+   } <span style="color:#66d9ef">else</span> {
+     	<span style="color:#ae81ff">0</span>
+   }
+}</code></pre></div></li>
+</ul>
+
+<p><em>(如果已经知道需要ARGB_8888的结果可以直接等于0xFFFFFFFF/0xFF000000,减少后续转化的步骤，后面介绍的方法也同理)</em></p>
+
+<p><strong>弊端：如果图像的所有灰度值都低于或者高于阈值，就会出现全黑或者全白的现象</strong></p>
+
+<h4 id="2-有序抖动算法">2.有序抖动算法</h4>
+
+<p>有序抖动算法利用一个<code>L*L</code>的抖动矩阵(元素值范围<code>[0,L*L - 1]</code>)，将矩阵中的元素做为图像半色调化的阈值。由于其中图像的宽高要比L大的多所以需要通过取模运算来求出对应矩阵中的坐标。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">val</span> x = wIndex % L
+<span style="color:#66d9ef">val</span> y = hIndex % L</code></pre></div>
+<p>解决对应坐标的问题，还需要解决比较的问题。灰度值的范围为<code>[0,255]</code>,如果抖动矩阵为<code>8 x 8</code> 取值范围就为<code>[0,63]</code>,需要对值进行转化，比较的方法有下面两张：</p>
+
+<ul>
+<li>将灰度值除以<code>255.0f</code>，把值压缩到<code>[0,1]</code>，将矩阵中得到的阈值除以63.0f，把阈值也压缩到<code>[0,1]</code>。这样就能进行比较了。</li>
+<li>将灰度值除以4，把值压缩到<code>[0,63]</code>进行比较。</li>
+</ul>
+
+<p>下面是Bayer提出的抖动矩阵(设计矩阵也是一门学问)和代码实现：</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/bayer/Bayer%e6%8a%96%e5%8a%a8%e7%9f%a9%e9%98%b5.png"/> 
+</figure>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#66d9ef">for</span> (h <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span> until height) {
+    <span style="color:#66d9ef">for</span> (w <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span> until width) {
+        <span style="color:#66d9ef">val</span> index = width * h + w
+        <span style="color:#66d9ef">val</span> grayPixel = grayArray[index] and <span style="color:#ae81ff">0x000000FF</span>
+        <span style="color:#66d9ef">val</span> x = w % <span style="color:#ae81ff">8</span>
+        <span style="color:#66d9ef">val</span> y = h % <span style="color:#ae81ff">8</span>
+        bayerArray[index] = <span style="color:#66d9ef">if</span> (grayPixel / <span style="color:#ae81ff">4</span> &gt;= bayerPattern[x][y]) {
+            <span style="color:#ae81ff">1</span>
+        } <span style="color:#66d9ef">else</span> {
+            <span style="color:#ae81ff">0</span>
+        }
+    }
+}</code></pre></div>
+<h4 id="3-误差扩散算法">3.误差扩散算法</h4>
+
+<p>误差扩散算法按照一定的顺序，从上到下或者从左到右的选取灰色图片的像素值进行半色调。假设灰度值范围为<code>[0, 255]</code>的像素值<code>x</code>与阈值<code>128</code>进行比较，如果<code>x</code>大于128则取值为1，误差为<code>(x - 255)</code>;如果<code>x</code> 小于128则取值为0，误差就为<code>x</code>。我们只需要将每个点的误差按一定的比例扩散到相邻的像素点。下面提供两个误差扩散系数表:</p>
+
+<p><strong>a.Floyd和Steinberg的误差扩散系数表</strong></p>
+
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">x</th>
+<th align="center"><sup>7</sup>&frasl;<sub>16</sub></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center"><sup>3</sup>&frasl;<sub>16</sub></td>
+<td align="center"><sup>5</sup>&frasl;<sub>16</sub></td>
+<td align="center"><sup>1</sup>&frasl;<sub>16</sub></td>
+</tr>
+</tbody>
+</table>
+
+<p>将误差扩散到相邻点的时候我们还需要注意到边界条件，有如下6种情况:(表示<code>x</code>点位置)</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center">4</td>
+<td align="center">4</td>
+<td align="center">5</td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li>1.<code>x</code>点处于图片的最左边但不到最底边，误差无法扩散到系数表<code>x</code>左边的区域(<code>h + 1 &lt; height &amp;&amp; w - 1 &lt; 0</code>)</li>
+<li>2.<code>x</code>点处于图片中间，误差可以扩散到系数表<code>x</code>规定区域(<code>h + 1 &lt; height &amp;&amp; w + 1 &lt; width &amp;&amp; w - 1 &gt;= 0</code>)</li>
+<li>3.<code>x</code>点处于图片的最右边但不到最底边，误差无法扩散到系数表<code>x</code>右边的区域(<code>h + 1 &lt; height &amp;&amp; w + 1 &gt;= width</code>)</li>
+<li>4.<code>x</code>点处于图片最底边到不到最右边，误差无法扩散到系数表<code>x</code>下边的区域(<code>h + 1 &gt;= height &amp;&amp; w + 1 &lt; width</code>)</li>
+
+<li><p>5.<code>x</code>点处于图片最底边切最右边，误差无法扩散</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-kotlin" data-lang="kotlin"><span style="color:#75715e">//转化成8bit灰度值数组,并转成浮点数进行运算，避免因为精度导致误差扩大
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> grayArray = sourceArray.map {
+it and <span style="color:#ae81ff">0x000000FF</span>
+}.map {
+it.toFloat()
+}.toFloatArray()
+<span style="color:#66d9ef">for</span> (h <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span> until height) {
+<span style="color:#66d9ef">for</span> (w <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span> until width) {
+    <span style="color:#66d9ef">val</span> index = width * h + w
+    <span style="color:#66d9ef">val</span> grayPixel = grayArray[index]
+    <span style="color:#66d9ef">var</span> error: Float <span style="color:#75715e">//误差
+</span><span style="color:#75715e"></span>    bayerArray[index] = <span style="color:#66d9ef">if</span> (grayPixel &gt;= <span style="color:#ae81ff">128</span>) {
+        error = grayPixel - <span style="color:#ae81ff">255</span>
+        <span style="color:#ae81ff">1</span>
+    } <span style="color:#66d9ef">else</span> {
+        error = grayPixel
+        <span style="color:#ae81ff">0</span>
+    }
+    <span style="color:#75715e">//将误差扩散到相邻点
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (h + <span style="color:#ae81ff">1</span> &lt; height &amp;&amp; w + <span style="color:#ae81ff">1</span> &lt; width &amp;&amp; w - <span style="color:#ae81ff">1</span> &gt;= <span style="color:#ae81ff">0</span>) {
+        grayArray[width * h + w + <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">7</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w - <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">3</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w] += error * <span style="color:#ae81ff">5</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w + <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">1</span> / <span style="color:#ae81ff">16</span>
+    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (h + <span style="color:#ae81ff">1</span> &lt; height &amp;&amp; w - <span style="color:#ae81ff">1</span> &lt; <span style="color:#ae81ff">0</span>) {
+        grayArray[width * h + w + <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">7</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w] += error * <span style="color:#ae81ff">5</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w + <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">1</span> / <span style="color:#ae81ff">16</span>
+    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (h + <span style="color:#ae81ff">1</span> &lt; height &amp;&amp; w + <span style="color:#ae81ff">1</span> &gt;= width) {
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w - <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">3</span> / <span style="color:#ae81ff">16</span>
+        grayArray[width * (h + <span style="color:#ae81ff">1</span>) + w] += error * <span style="color:#ae81ff">5</span> / <span style="color:#ae81ff">16</span>
+    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (h + <span style="color:#ae81ff">1</span> &gt;= height &amp;&amp; w + <span style="color:#ae81ff">1</span> &lt; width) {
+        grayArray[width * h + w + <span style="color:#ae81ff">1</span>] += error * <span style="color:#ae81ff">7</span> / <span style="color:#ae81ff">16</span>
+    }
+}
+}</code></pre></div></li>
+</ul>
+
+<p><strong>b.超相邻点的误差扩散系数表</strong></p>
+
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center"></th>
+<th align="center">x</th>
+<th align="center"><sup>7</sup>&frasl;<sub>48</sub></th>
+<th align="center"><sup>5</sup>&frasl;<sub>48</sub></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center"><sup>3</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>5</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>7</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>5</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>3</sup>&frasl;<sub>48</sub></td>
+</tr>
+
+<tr>
+<td align="center"><sup>1</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>3</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>5</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>3</sup>&frasl;<sub>48</sub></td>
+<td align="center"><sup>1</sup>&frasl;<sub>48</sub></td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li>与<strong>Floyd和Steinberg</strong>类似，可以自己体会并举一反三实现一下。</li>
+</ul>
+
+<h4 id="灰度效果展示-1">灰度效果展示</h4>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/bayer/%e6%8a%96%e5%8a%a8%e6%95%88%e6%9e%9c.png"/> 
+</figure>
+
+<p>未完待续&hellip;</p>
+
+<p>参考文献：</p>
+
+<p><a href="https://www.docin.com/p-1003751633-f5.html">https://www.docin.com/p-1003751633-f5.html</a></p>
+
+<p><a href="https://www.cnblogs.com/-wenli/p/11562327.html">https://www.cnblogs.com/-wenli/p/11562327.html</a></p>
+
+<p><a href="https://www.docin.com/p-978742938.html">https://www.docin.com/p-978742938.html</a></p>
+
+<p><a href="https://www.cnblogs.com/wainiwann/p/7086844.html">https://www.cnblogs.com/wainiwann/p/7086844.html</a></p>
+
+<p><a href="https://www.cnblogs.com/binglingziyu/p/audio-video-basic-04-bmp-dword-align.html">https://www.cnblogs.com/binglingziyu/p/audio-video-basic-04-bmp-dword-align.html</a></p></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/android"><span class="tag">Android</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86"><span class="tag">图像处理</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

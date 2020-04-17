@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/post/</link>
+    <description>Recent content in Posts on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 30 Dec 2019 20:00:22 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>2019个人年终总结</title>
+      <link>https://www.kitto.fun/post/2019_summary/</link>
+      <pubDate>Mon, 30 Dec 2019 20:00:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/2019_summary/</guid>
+      <description>&lt;p&gt;2019就要过去了，用两个字描述应该是&lt;strong&gt;遗憾&lt;/strong&gt;吧！这一年是我大学毕业，完完整整接触社会的第一年，眼看12月马上要结束了，所以我打算在这里总结一下今年的情况。对于有底气的人来说，做总结应该是令人愉悦的事情，但是不知为何，虽然12月初我就有打算着手这事情，但是我扪心自问“这一年你做出了什么事？”，很明显我一事无成！唉，下面我就回顾一下过去，并且展望一下未来吧！希望明年这个时候不是这种碌碌无为的样子。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Android解析Excel(xls/xlsx)</title>
+      <link>https://www.kitto.fun/post/excel_analyse/</link>
+      <pubDate>Mon, 16 Dec 2019 20:35:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/excel_analyse/</guid>
+      <description>&lt;h3 id=&#34;xls与xlsx的区别&#34;&gt;xls与xlsx的区别：&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;.xls是03版Office Microsoft Office Excel 工作表的格式,能被所有的office程序打开&lt;/li&gt;
+&lt;li&gt;.xlsx是07版Office Microsoft Office Excel 工作表的格式，只能用2007office以上的版本打开。基于XML的压缩文件格式取代了其目前专有的默认文件格式，在传统的文件名扩展名后面添加了字母x（即.docx取代.doc、.xlsx取代.xls，等等），使其占用空间更小。&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>Android图像半色调处理</title>
+      <link>https://www.kitto.fun/post/bayer/</link>
+      <pubDate>Thu, 21 Nov 2019 20:00:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/bayer/</guid>
+      <description>&lt;p&gt;本文介绍在工作期间接触的图像处理，在此做一个总结。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Hugo搭建博客</title>
+      <link>https://www.kitto.fun/post/hugo_blog/</link>
+      <pubDate>Thu, 24 Oct 2019 15:25:06 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/hugo_blog/</guid>
+      <description>&lt;p&gt;“Hugo是由Go语言实现的静态网站生成器。简单、易用、高效、易扩展、快速部署。”&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>CMake学习（01）</title>
+      <link>https://www.kitto.fun/post/cmake_01/</link>
+      <pubDate>Thu, 01 Aug 2019 20:35:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/cmake_01/</guid>
+      <description>&lt;p&gt;最近在研究 &lt;code&gt;Android&lt;/code&gt; 的 &lt;code&gt;NDK&lt;/code&gt; 开发，当前主流是使用 &lt;code&gt;CMake&lt;/code&gt; 工具来构建项目，所以学习 &lt;code&gt;CMake&lt;/code&gt; 的构建是 &lt;code&gt;NDK&lt;/code&gt; 开发的必经之路！&lt;/p&gt;
+
+&lt;p&gt;本文介绍了 &lt;code&gt;CMake&lt;/code&gt; 环境的配置并通过 &lt;code&gt;HelloWorld&lt;/code&gt; 项目来介绍 &lt;code&gt;CMake&lt;/code&gt; 的使用。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>代理设计模式</title>
+      <link>https://www.kitto.fun/post/design_pattern_03_proxy/</link>
+      <pubDate>Mon, 15 Jul 2019 20:57:25 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/design_pattern_03_proxy/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;静态代理:&lt;/strong&gt; 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;动态代理:&lt;/strong&gt; 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>单例设计模式</title>
+      <link>https://www.kitto.fun/post/design_pattern_01_singleton/</link>
+      <pubDate>Wed, 03 Jul 2019 19:54:01 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/design_pattern_01_singleton/</guid>
+      <description>&lt;p&gt;单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&amp;hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>OkHttp源码分析</title>
+      <link>https://www.kitto.fun/post/okhttp_source_analysis/</link>
+      <pubDate>Mon, 01 Jul 2019 21:20:38 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/okhttp_source_analysis/</guid>
+      <description>&lt;p&gt;文章逐步分析OkHttp框架代码，一步一步了解框架原理&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Handler源码分析</title>
+      <link>https://www.kitto.fun/post/handler_source_analysis/</link>
+      <pubDate>Sat, 15 Jun 2019 21:20:38 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/handler_source_analysis/</guid>
+      <description>&lt;p&gt;安卓开发中不能在子线程中更新UI的操作(不绝对,详情&lt;em&gt;View绘制流程&lt;/em&gt;-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>MVP开发模式及简单架构封装</title>
+      <link>https://www.kitto.fun/post/mvp_development_mode/</link>
+      <pubDate>Sat, 01 Jun 2019 21:20:38 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/mvp_development_mode/</guid>
+      <description>&lt;p&gt;MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

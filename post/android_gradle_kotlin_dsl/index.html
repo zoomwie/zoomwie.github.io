@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title></title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  
+  <meta name="description" content="Android Gradle Kotlin-DSL 在 Android开发中，Gradle脚本的构建对我来说都是比较头疼的问题。首先是对Gradle能力的不了解，其次就是对Gradle编程语言Groovy的不熟悉。由于目前Kotlin已经成为了Android开发的第一语言，Gradle团队也为我们提供了kotlin编写Gradle脚本的可能(Kotlin-DSL)。
+在官方 Kotlin Meets Gradle 一文中提到当我们使用Kotlin编写Gradle脚本的时候，将会体会到:
+ auto-completion and content assist
+ quick documentation
+ navigation to source
+ refactoring and more
+  一、使用Kotlin编写Gradle脚本  Groovy DSL script files use the .gradle file name extension.
+Kotlin DSL script files use the .gradle.kts file name extension.
+ Android项目刚创建完并不是Kotlin DSL脚本，所以我们需要将进行手动转化。
+1.修改settings.gradle 将.gradle 扩展名改为.gradle.kts
+setting &amp;gt; Languages &amp;amp; Frameworks &amp;gt; Kotlin &amp;gt; Kotlin Scriptiong中的Reload script dependencies on file change">
+
+  
+  
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="">
+    <meta name="twitter:description" content="Android Gradle Kotlin-DSL 在 Android开发中，Gradle脚本的构建对我来说都是比较头疼的问题。首先是对Gradle能力的不了解，其次就是对Gradle编程语言Groovy的不熟悉。由于目前Kotlin已经成为了Android开发的第一语言，Gradle团队也为我们提供了kotlin编写Gradle脚本的可能(Kotlin-DSL)。
+在官方 Kotlin Meets Gradle 一文中提到当我们使用Kotlin编写Gradle脚本的时候，将会体会到:
+ auto-completion and content assist
+ quick documentation
+ navigation to source
+ refactoring and more
+  一、使用Kotlin编写Gradle脚本  Groovy DSL script files use the .gradle file name extension.
+Kotlin DSL script files use the .gradle.kts file name extension.
+ Android项目刚创建完并不是Kotlin DSL脚本，所以我们需要将进行手动转化。
+1.修改settings.gradle 将.gradle 扩展名改为.gradle.kts
+setting &amp;gt; Languages &amp;amp; Frameworks &amp;gt; Kotlin &amp;gt; Kotlin Scriptiong中的Reload script dependencies on file change">
+    <meta name="twitter:image" content="/images/avatar.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="Android Gradle Kotlin-DSL 在 Android开发中，Gradle脚本的构建对我来说都是比较头疼的问题。首先是对Gradle能力的不了解，其次就是对Gradle编程语言Groovy的不熟悉。由于目前Kotlin已经成为了Android开发的第一语言，Gradle团队也为我们提供了kotlin编写Gradle脚本的可能(Kotlin-DSL)。
+在官方 Kotlin Meets Gradle 一文中提到当我们使用Kotlin编写Gradle脚本的时候，将会体会到:
+ auto-completion and content assist
+ quick documentation
+ navigation to source
+ refactoring and more
+  一、使用Kotlin编写Gradle脚本  Groovy DSL script files use the .gradle file name extension.
+Kotlin DSL script files use the .gradle.kts file name extension.
+ Android项目刚创建完并不是Kotlin DSL脚本，所以我们需要将进行手动转化。
+1.修改settings.gradle 将.gradle 扩展名改为.gradle.kts
+setting &amp;gt; Languages &amp;amp; Frameworks &amp;gt; Kotlin &amp;gt; Kotlin Scriptiong中的Reload script dependencies on file change">
+  <meta property="og:url" content="https://www.kitto.fun/post/android_gradle_kotlin_dsl/">
+  <meta property="og:image" content="/images/avatar.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/android_gradle_kotlin_dsl/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+ <img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar">
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">好好学习，天天向上</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title"></h1>
+      <p class="post-meta">@张懂 · Jan 1, 0001 · 1 min read</p>
+    </header>
+    <article class="post-content">
+
+<h1 id="android-gradle-kotlin-dsl">Android Gradle Kotlin-DSL</h1>
+
+<p>在 Android开发中，Gradle脚本的构建对我来说都是比较头疼的问题。首先是对Gradle能力的不了解，其次就是对Gradle编程语言Groovy的不熟悉。由于目前Kotlin已经成为了Android开发的第一语言，Gradle团队也为我们提供了kotlin编写Gradle脚本的可能(<a href="https://github.com/gradle/kotlin-dsl-samples">Kotlin-DSL</a>)。</p>
+
+<p>在官方 <a href="https://blog.gradle.org/kotlin-meets-gradle">Kotlin Meets Gradle</a> 一文中提到当我们使用Kotlin编写Gradle脚本的时候，将会体会到:</p>
+
+<ul>
+<li><p>auto-completion and content assist</p></li>
+
+<li><p>quick documentation</p></li>
+
+<li><p>navigation to source</p></li>
+
+<li><p>refactoring and more</p></li>
+</ul>
+
+<h3 id="一-使用kotlin编写gradle脚本">一、使用Kotlin编写Gradle脚本</h3>
+
+<blockquote>
+<p>Groovy DSL script files use the <code>.gradle</code> file name extension.</p>
+
+<p>Kotlin DSL script files use the <code>.gradle.kts</code> file name extension.</p>
+</blockquote>
+
+<p>Android项目刚创建完并不是<code>Kotlin DSL</code>脚本，所以我们需要将进行手动转化。</p>
+
+<p>1.修改<code>settings.gradle</code> 将<code>.gradle</code> 扩展名改为<code>.gradle.kts</code></p>
+
+<p><code>setting &gt; Languages &amp; Frameworks &gt; Kotlin &gt; Kotlin Scriptiong</code>中的Reload script dependencies on file change</p>
+
+<p><a href="https://docs.gradle.org/current/userguide/userguide.html">Gradle文档</a></p>
+
+<p><a href="https://v.qq.com/x/page/x0539lvfmm2.html">https://v.qq.com/x/page/x0539lvfmm2.html</a></p>
+
+<p><a href="https://www.jianshu.com/p/d08b1305ea3f">https://www.jianshu.com/p/d08b1305ea3f</a></p>
+
+<p><a href="https://www.jianshu.com/p/8fdfbcf35f0d">https://www.jianshu.com/p/8fdfbcf35f0d</a></p>
+
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzU2MzcxMDAxNA==&amp;mid=2247483652&amp;idx=1&amp;sn=662cb61b07ef6e6aff4a1104808e5156&amp;chksm=fc575055cb20d9435c0aab6f6eab29675dac24b5c332594b33048e6ea349ef6c672079af5505&amp;token=1005689393&amp;lang=zh_CN#rd">https://mp.weixin.qq.com/s?__biz=MzU2MzcxMDAxNA==&amp;mid=2247483652&amp;idx=1&amp;sn=662cb61b07ef6e6aff4a1104808e5156&amp;chksm=fc575055cb20d9435c0aab6f6eab29675dac24b5c332594b33048e6ea349ef6c672079af5505&amp;token=1005689393&amp;lang=zh_CN#rd</a></p>
+</article>
+    <footer class="post-footer">
+      
+      <p class="post-copyright">
+        This post was published <strong>737409</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

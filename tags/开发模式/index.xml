@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>开发模式 on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/tags/%E5%BC%80%E5%8F%91%E6%A8%A1%E5%BC%8F/</link>
+    <description>Recent content in 开发模式 on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 01 Jun 2019 21:20:38 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/tags/%E5%BC%80%E5%8F%91%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>MVP开发模式及简单架构封装</title>
+      <link>https://www.kitto.fun/post/mvp_development_mode/</link>
+      <pubDate>Sat, 01 Jun 2019 21:20:38 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/mvp_development_mode/</guid>
+      <description>&lt;p&gt;MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

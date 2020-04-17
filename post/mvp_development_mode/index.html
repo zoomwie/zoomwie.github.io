@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>MVP开发模式及简单架构封装</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content="MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。
+">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="MVP开发模式及简单架构封装">
+    <meta name="twitter:description" content="MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。
+">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/mvp_development_mode/mvp%E5%9B%BE%E8%A7%A3.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="MVP开发模式及简单架构封装">
+  <meta property="og:description" content="MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/mvp_development_mode/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/mvp_development_mode/mvp%E5%9B%BE%E8%A7%A3.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/mvp_development_mode/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">MVP开发模式及简单架构封装</h1>
+      <p class="post-meta">@张懂 · Jun 1, 2019 · 3 min read</p>
+    </header>
+    <article class="post-content"><p>MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。</p>
+
+<h1 id="mvp开发模式">MVP开发模式</h1>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/mvp_development_mode/mvp%e5%9b%be%e8%a7%a3.png"/> 
+</figure>
+
+<ul>
+<li><strong>Model:</strong> 主要用于业务操作，如:网络请求，数据存储等</li>
+<li><strong>Presenter:</strong> 主要用于逻辑处理，沟通 <strong>M</strong> 与 <strong>V</strong> ，尽可能不包含Android的代码</li>
+<li><strong>View:</strong> 主要用于规定界面的行为</li>
+</ul>
+
+<h4 id="优点">优点</h4>
+
+<ul>
+<li>由于Presenter层的出现，减少了View的逻辑操作和负担。这样使 View 与 Model 之间耦合度低</li>
+<li>合理规划的话，模块分明，模块复用率高，便于测试</li>
+</ul>
+
+<h4 id="缺点">缺点</h4>
+
+<ul>
+<li>由于抽出了一层 Presenter，所以导致类和代码有一定的增加</li>
+<li>如果不能进行合理规划的将会导致后期模块杂乱，代码冗余度高</li>
+<li>纠结将 <strong>服务</strong> 和 <strong>广播</strong> 放在何处</li>
+<li>Presenter 会持有 View 的引用，如果不进行解绑会造成内存泄露</li>
+</ul>
+
+<p>说到最后，其实 MVP 只是一种思想，没有什么固定的代码，固定的格式。因为多在实践中，慢慢理解和多多总结。不过在开发前一定要做好项目分析规划，切忌立马动手写代码。</p>
+
+<h1 id="mvp架构封装使用-登录功能示范">MVP架构封装使用(登录功能示范)</h1>
+
+<p>GitHub传送门 <a href="https://github.com/KittoZZZ/MVPzzz">MVPzzz(包含以下示例)</a></p>
+
+<p><a href="https://jitpack.io/#KittoZZZ/MVPzzz">JitPack</a></p>
+
+<h2 id="一-导包">一、导包</h2>
+
+<h5 id="step-1">Step 1.</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">allprojects <span style="color:#f92672">{</span>
+	repositories <span style="color:#f92672">{</span>
+		<span style="color:#f92672">...</span>
+		maven <span style="color:#f92672">{</span> url <span style="color:#e6db74">&#39;https://jitpack.io&#39;</span> <span style="color:#f92672">}</span>
+	<span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span></code></pre></div>
+<ul>
+<li><p>在所有的 repositories 中都加入上面语句，否则无法导入成功</p>
+
+<h5 id="step-2">Step 2.</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">dependencies <span style="color:#f92672">{</span>
+	compile <span style="color:#e6db74">&#39;com.github.KittoZZZ:MVPzzz:v.0.0.2&#39;</span>
+<span style="color:#f92672">}</span></code></pre></div></li>
+</ul>
+
+<p>​</p>
+
+<h2 id="二-包含契约类">二、包含契约类</h2>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/mvp_development_mode/%e7%9b%ae%e5%bd%95%e7%bb%93%e6%9e%841.png"/> 
+</figure>
+
+<h3 id="1-建立view和presenter的契约类">1.建立View和Presenter的契约类</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LoginContract {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">interface</span> ILoginView <span style="color:#a6e22e">extends</span> IBaseView {
+        <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">LoginSuccess</span>();
+
+        <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loginFail</span>(String <span style="color:#a6e22e">msg</span>);
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">interface</span> ILoginPresenter {
+        <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">toLogin</span>(User <span style="color:#a6e22e">user</span>);
+    }
+}</code></pre></div>
+<ul>
+<li><p>View层接口必须继承IBaseView</p></li>
+
+<li><p>可以很明显的看出 View 和 Presenter 的关系</p></li>
+</ul>
+
+<h3 id="2-新建model类-结合rxjava">2.新建Model类(结合RxJava)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> UserModel <span style="color:#a6e22e">extends</span> BaseModel {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Observable</span><span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">toLogin</span>(User <span style="color:#a6e22e">user</span>) {
+        <span style="color:#75715e">//Retrofit2
+</span><span style="color:#75715e"></span>        String <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;fail&#34;</span>;
+        <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;zzz&#34;</span>.<span style="color:#a6e22e">equals</span>(user.<span style="color:#a6e22e">getAccount</span>()) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;123&#34;</span>.<span style="color:#a6e22e">equals</span>(user.<span style="color:#a6e22e">getPassword</span>())) {
+            result <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;success&#34;</span>;
+        }
+        <span style="color:#66d9ef">return</span> Observable.<span style="color:#a6e22e">just</span>(result);
+    }
+}</code></pre></div>
+<ul>
+<li>BaseModel中并为没有实现什么功能，只是先留出，后序可能进行一些更改</li>
+<li>只是用于模拟所以并没有进行网络请求，写死数据</li>
+</ul>
+
+<h3 id="3-新建presenter类实现契约类中的p层接口">3.新建Presenter类实现契约类中的P层接口</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LoginPresenter <span style="color:#a6e22e">extends</span> BasePresenter<span style="color:#f92672">&lt;</span>LoginContract.<span style="color:#a6e22e">ILoginView</span><span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">implements</span> ILoginContract.<span style="color:#a6e22e">ILoginPresenter</span> {
+    <span style="color:#a6e22e">@InjectModel</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">UserModel</span> userModel;
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> toLogin(User <span style="color:#a6e22e">user</span>) {
+        userModel.<span style="color:#a6e22e">toLogin</span>(user)
+                .<span style="color:#a6e22e">subscribe</span>(<span style="color:#66d9ef">new</span> Consumer<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span>() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> accept(String <span style="color:#a6e22e">result</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Exception</span> {
+                        <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;success&#34;</span>.<span style="color:#a6e22e">equals</span>(result)) {
+                            getView().<span style="color:#a6e22e">LoginSuccess</span>();
+                        } <span style="color:#66d9ef">else</span> {
+                            getView().<span style="color:#a6e22e">loginFail</span>(result);
+                        }
+                    }
+                });
+    }
+}</code></pre></div>
+<ul>
+<li><code>getView()</code> 方法用于调用 View 层的接口方法，如：LoginSuccess(),loginFail()</li>
+<li>必须要写BasePresenter泛型，LoginContract.ILoginView，否则无法调用它的方法</li>
+<li>使用注解 <code>@InjectModel</code> 进行注入 Model 对象</li>
+</ul>
+
+<h3 id="4-新建activity类实现契约类中的v层接口">4.新建Activity类实现契约类中的V层接口</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LoginActivity <span style="color:#a6e22e">extends</span> BaseMvpActivity <span style="color:#a6e22e">implements</span> LoginContract.<span style="color:#a6e22e">ILoginView</span> {
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Button</span> btnLogin;
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">EditText</span> etAccount;
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">EditText</span> etPassword;
+
+    <span style="color:#a6e22e">@InjectPresenter</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LoginPresenter</span> loginPresenter;
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">int</span> setContentView() {
+        <span style="color:#66d9ef">return</span> R.<span style="color:#a6e22e">layout</span>.<span style="color:#a6e22e">activity_login</span>;
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">void</span> initView() {
+        etAccount <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">findViewById</span>(R.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">et_account</span>);
+        etPassword <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">findViewById</span>(R.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">et_password</span>);
+        btnLogin <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">findViewById</span>(R.<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">btn_login</span>);
+        btnLogin.<span style="color:#a6e22e">setOnClickListener</span>(<span style="color:#66d9ef">new</span> View.<span style="color:#a6e22e">OnClickListener</span>() {
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> onClick(View <span style="color:#a6e22e">v</span>) {
+                String <span style="color:#a6e22e">account</span> <span style="color:#f92672">=</span> etAccount.<span style="color:#a6e22e">getText</span>().<span style="color:#a6e22e">toString</span>().<span style="color:#a6e22e">trim</span>();
+                String <span style="color:#a6e22e">password</span> <span style="color:#f92672">=</span> etPassword.<span style="color:#a6e22e">getText</span>().<span style="color:#a6e22e">toString</span>().<span style="color:#a6e22e">trim</span>();
+                User <span style="color:#a6e22e">user</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> User(account, password);
+                loginPresenter.<span style="color:#a6e22e">toLogin</span>(user);
+            }
+        });
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">void</span> initData() {
+
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> LoginSuccess() {
+        Intent <span style="color:#a6e22e">intent</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Intent(<span style="color:#66d9ef">this</span>, MainActivity.<span style="color:#a6e22e">class</span>);
+        startActivity(intent);
+        finish();
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> loginFail(String <span style="color:#a6e22e">msg</span>) {
+        Toast.<span style="color:#a6e22e">makeText</span>(<span style="color:#66d9ef">this</span>, msg, Toast.<span style="color:#a6e22e">LENGTH_SHORT</span>).<span style="color:#a6e22e">show</span>();
+    }
+}</code></pre></div>
+<ul>
+<li>继承 <code>BaseMvpActivity</code> 实现 <code>LoginContract.ILoginView</code> ，重写方法</li>
+<li>使用注解 <code>@InjectPresenter</code> 进行注入 Presenter 对象</li>
+</ul>
+
+<h2 id="三-去除契约类-多个presenter例子">三、去除契约类(多个Presenter例子)</h2>
+
+<blockquote>
+<p>&ldquo;根据设计原则 第一条 单一原则 LoginContract 这个类就把v和p耦合了 应该把view接口 和 presenter分离开 作为两个独立接口 然后分别由view和presenter子类实现&rdquo;</p>
+</blockquote>
+
+<p>上面是来自<a href="https://www.jianshu.com/u/f408bdadacce">AWeiLoveAndroid</a>的指导，经过思考确实将 V 层和 P 层的耦合了，所以思考将契约类去除的做法。</p>
+
+<p>假设，在登录界面中的记住密码功能，需要在登录成功后将账号和密码进行保存在本地。下次登录的时候，直接读取显示在对应的输入框中。</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/mvp_development_mode/%e7%9b%ae%e5%bd%95%e7%bb%93%e6%9e%842.png"/> 
+</figure>
+
+<ul>
+<li>从目录结构中可以看出多了 <code>UserDataPresenter</code> 与 <code>DataModel</code> 两个关键的类</li>
+<li>主要是 <strong>V</strong> 层在初始化的时候调用 <code>UserDataPresenter</code> 去读取，登录成功的时候保存数据</li>
+<li>由于只是个例子所以<code>DataModel</code> 使用 SP 进行数据的存储</li>
+<li><code>AppContext</code> 只是用于在 <strong>M</strong> 层获取 <code>ApplicationContext</code> 的工具类</li>
+</ul>
+
+<p>LoginActivity部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LoginActivity <span style="color:#a6e22e">extends</span> BaseMvpActivity <span style="color:#a6e22e">implements</span> ILoginView, IUserDataView {
+    ...
+    
+    <span style="color:#a6e22e">@InjectPresenter</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LoginPresenter</span> loginPresenter;
+    <span style="color:#a6e22e">@InjectPresenter</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">UserDataPresenter</span> userDataPresenter;
+
+    ...
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">void</span> initData() {
+        btnLogin.<span style="color:#a6e22e">setClickable</span>(<span style="color:#66d9ef">false</span>);
+        userDataPresenter.<span style="color:#a6e22e">loadLastData</span>();
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> showLoginLoading() {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;showLoginLoading: 正在登陆&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> hideLoginLoading() {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;hideLoginLoading: 登录结束&#34;</span>);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> loginSuccess() {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;loginSuccess: 登录成功&#34;</span>);
+        ...
+        userDataPresenter.<span style="color:#a6e22e">saveData</span>(user);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> loginFail(String <span style="color:#a6e22e">msg</span>) {
+        Toast.<span style="color:#a6e22e">makeText</span>(<span style="color:#66d9ef">this</span>, msg, Toast.<span style="color:#a6e22e">LENGTH_SHORT</span>).<span style="color:#a6e22e">show</span>();
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> saveDataSuccess() {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;saveDataSuccess: 保存数据成功&#34;</span>);
+        ...
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> saveDataFail(String <span style="color:#a6e22e">msg</span>) {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;saveDataFail: 保存数据失败 &#34;</span> <span style="color:#f92672">+</span> msg);
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> readDataSuccess(User <span style="color:#a6e22e">user</span>) {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;readDataSuccess: 读取数据成功&#34;</span>);
+        btnLogin.<span style="color:#a6e22e">setClickable</span>(<span style="color:#66d9ef">true</span>);
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>TextUtils.<span style="color:#a6e22e">isEmpty</span>(user.<span style="color:#a6e22e">getAccount</span>()) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>TextUtils.<span style="color:#a6e22e">isEmpty</span>(user.<span style="color:#a6e22e">getPassword</span>())) {
+            etAccount.<span style="color:#a6e22e">setText</span>(user.<span style="color:#a6e22e">getAccount</span>());
+            etPassword.<span style="color:#a6e22e">setText</span>(user.<span style="color:#a6e22e">getPassword</span>());
+           <span style="color:#75715e">// loginPresenter.toLogin(user);
+</span><span style="color:#75715e"></span>        }
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> readDataFail(String <span style="color:#a6e22e">msg</span>) {
+        Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;login&#34;</span>, <span style="color:#e6db74">&#34;loadDataFail: 读取数据失败&#34;</span> <span style="color:#f92672">+</span> msg);
+    }
+}</code></pre></div>
+<ul>
+<li>在界面打开的时候开始读取保存本地的数据，此时登录按钮为不可点击</li>
+<li>读取成功，将登录按钮设为可点击，并且将数据现在输入框中</li>
+<li>如果自动登录的话，如果满足条件(账号密码不为空)则直接调用 P 层去登录</li>
+</ul>
+
+<p>UserDataPresenter代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> UserDataPresenter <span style="color:#a6e22e">extends</span> BasePresenter<span style="color:#f92672">&lt;</span>IUserDataView<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">implements</span> IUserDataPresenter {
+    <span style="color:#a6e22e">@InjectModel</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">DataModel</span> dataModel;
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> saveData(User <span style="color:#a6e22e">user</span>) {
+        dataModel.<span style="color:#a6e22e">saveUserData</span>(user)
+                .<span style="color:#a6e22e">subscribeOn</span>(Schedulers.<span style="color:#a6e22e">io</span>())
+                .<span style="color:#a6e22e">observeOn</span>(AndroidSchedulers.<span style="color:#a6e22e">mainThread</span>())
+                .<span style="color:#a6e22e">subscribe</span>(<span style="color:#66d9ef">new</span> Consumer<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span>() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> accept(String <span style="color:#a6e22e">result</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Exception</span> {
+                        <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;success&#34;</span>.<span style="color:#a6e22e">equals</span>(result)) {
+                            getView().<span style="color:#a6e22e">saveDataSuccess</span>();
+                        } <span style="color:#66d9ef">else</span> {
+                            getView().<span style="color:#a6e22e">saveDataFail</span>(<span style="color:#e6db74">&#34;保存失败&#34;</span>);
+                        }
+                    }
+                });
+    }
+
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> loadLastData() {
+        dataModel.<span style="color:#a6e22e">readUserData</span>()
+                .<span style="color:#a6e22e">subscribeOn</span>(Schedulers.<span style="color:#a6e22e">io</span>())
+                .<span style="color:#a6e22e">observeOn</span>(AndroidSchedulers.<span style="color:#a6e22e">mainThread</span>())
+                .<span style="color:#a6e22e">subscribe</span>(<span style="color:#66d9ef">new</span> Consumer<span style="color:#f92672">&lt;</span>User<span style="color:#f92672">&gt;</span>() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> accept(User <span style="color:#a6e22e">user</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Exception</span> {
+                        getView().<span style="color:#a6e22e">readDataSuccess</span>(user);
+                    }
+                });
+    }
+}</code></pre></div>
+<p><strong>DataModel代码就不展示，主要理解思想，详情可以看  &mdash;&gt;<a href="https://github.com/KittoZZZ/MVPzzz">MVPzzz(包含示例)</a></strong></p>
+
+<hr />
+
+<ul>
+<li>上面展示的是多个 <code>Presenter</code> 情况使用注解来实例化，这种方式同样适用于多个 <code>Model</code> 的情况</li>
+<li>正是这个例子，让我觉得<strong>V</strong>层与<strong>P</strong>层是一一对应的形式存在，可以说是耦合的</li>
+<li>保留着契约类可以清晰的看出<strong>V</strong>和<strong>P</strong>的关系，可能是个人水平较低，我还是会选择<strong>保留契约类</strong>的做法</li>
+<li>目前对于 <strong>MVP</strong> 开发模式的疑惑开始增多了&hellip;&hellip;.</li>
+<li>Fragment 的使用与 Activity 类似</li>
+</ul></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/android"><span class="tag">Android</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/%E5%BC%80%E5%8F%91%E6%A8%A1%E5%BC%8F"><span class="tag">开发模式</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        This post was published <strong>212</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

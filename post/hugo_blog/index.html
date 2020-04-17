@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>Hugo搭建博客</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="Author Name">
+  <meta name="description" content="“Hugo是由Go语言实现的静态网站生成器。简单、易用、高效、易扩展、快速部署。”
+">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="Hugo搭建博客">
+    <meta name="twitter:description" content="“Hugo是由Go语言实现的静态网站生成器。简单、易用、高效、易扩展、快速部署。”
+">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/hugo_blog/cover.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Hugo搭建博客">
+  <meta property="og:description" content="“Hugo是由Go语言实现的静态网站生成器。简单、易用、高效、易扩展、快速部署。”
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/hugo_blog/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/hugo_blog/cover.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/hugo_blog/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">Hugo搭建博客</h1>
+      <p class="post-meta">@Author Name · Oct 24, 2019 · 2 min read</p>
+    </header>
+    <article class="post-content"><p>“Hugo是由Go语言实现的静态网站生成器。简单、易用、高效、易扩展、快速部署。”</p>
+
+<ul>
+<li><p><a href="https://github.com/gohugoio/hugo">Hugo Github传送门</a></p></li>
+
+<li><p><a href="https://www.gohugo.org/">Hugo中文文档</a></p></li>
+</ul>
+
+<h2 id="一-hugo安装">一、Hugo安装</h2>
+
+<p>安装包下载地址：<a href="https://github.com/gohugoio/hugo/releases">https://github.com/gohugoio/hugo/releases</a></p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/hugo_blog/Hugo_list.png"/> 
+</figure>
+
+<h3 id="1-windows安装">1、Windows安装</h3>
+
+<ul>
+<li>从下载地址中下载 <code>hugo_extended_x.x.x_Windows-xbit.zip</code></li>
+<li>下载成功后解压，并在环境变量 <code>path</code> 中添加路径。</li>
+</ul>
+
+<h3 id="2-linux-ubuntu-安装">2、Linux(Ubuntu)安装</h3>
+
+<ul>
+<li>从下载地址中下载 <code>hugo_extended_x.x.x_Linux-xbit.tar.gz</code></li>
+
+<li><p>将压缩包移到自定义目录下进行解压</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; mv hugo_extended_0.58.3_Linux-64bit.tar.gz Hugo/
+&gt; tar -zxvf hugo_extended_0.58.3_Linux-64bit.tar.gz </code></pre></div></li>
+
+<li><p>将文件夹下的<strong>执行文件</strong><code>hugo</code>软链接到<code>/usr/local/bin</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; sudo ln -s <span style="color:#66d9ef">$(</span>你解压的绝对路径<span style="color:#66d9ef">)</span>/hugo /usr/local/bin/hugo</code></pre></div></li>
+</ul>
+
+<h3 id="3-macos安装">3、macOS安装</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; brew install hugo</code></pre></div>
+<h3 id="4-验证是否配置成功">4、验证是否配置成功</h3>
+
+<p>个人推荐<code>windows</code>平台使用<code>Git Bash</code>，其中可以直接执行<code>Linux</code>命令</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo version
+Hugo Static Site Generator v0.58.3/extended windows/amd64 BuildDate: unknown</code></pre></div>
+<h2 id="二-创建博客">二、创建博客</h2>
+
+<h3 id="1-创建项目-注-myblog为项目名可自定义">1. 创建项目(注：MyBlog为项目名可自定义)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo new site MyBlog
+
+Congratulations! Your new Hugo site is created in /xxx/xxx/myblog.
+
+Just a few more steps and you<span style="color:#960050;background-color:#1e0010">&#39;</span>re ready to go:
+
+<span style="color:#ae81ff">1</span>. Download a theme into the same-named folder.
+   Choose a theme from https://themes.gohugo.io/ or
+   create your own with the <span style="color:#e6db74">&#34;hugo new theme &lt;THEMENAME&gt;&#34;</span> command.
+<span style="color:#ae81ff">2</span>. Perhaps you want to add some content. You can add single files
+   with <span style="color:#e6db74">&#34;hugo new &lt;SECTIONNAME&gt;/&lt;FILENAME&gt;.&lt;FORMAT&gt;&#34;</span>.
+<span style="color:#ae81ff">3</span>. Start the built-in live server via <span style="color:#e6db74">&#34;hugo server&#34;</span>.
+
+Visit https://gohugo.io/ <span style="color:#66d9ef">for</span> quickstart guide and full documentation.</code></pre></div>
+<h3 id="2-添加版本管理">2.添加版本管理</h3>
+
+<ul>
+<li>在远程仓库创建 <code>MyBlog</code> 私有仓库</li>
+
+<li><p>进入项目根路径</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; cd MyBlog
+&gt;git init
+&gt;git add .
+&gt;git commit -m <span style="color:#e6db74">&#34;*****&#34;</span>
+&gt;git remote add origin https://*********
+&gt;git push -u origin master</code></pre></div></li>
+</ul>
+
+<h3 id="3-下载主题并添加版本控制">3.下载主题并添加版本控制</h3>
+
+<ul>
+<li><p><a href="https://themes.gohugo.io/">主题地址</a>，选择自己钟意的一项，每个主题都会有使用说明和例子
+下载主题，这里我使用 <a href="https://themes.gohugo.io/hugo-theme-m10c/">m10c</a> 进行演示</p>
+
+<p><em>注意:
+由于我们已经将<code>MyBlog</code>添加了版本控制，如果将主题<code>clone</code>下来也会存在版本控制，所以如果我们执行 <code>git add .</code> 时将会出现 <code>git</code> 无法获取两个仓库的嵌套关系的异常。下面提供两种方案，请理解后再进行操作</em></p>
+
+<h5 id="方案一-将主题做为-submodule-相关操作请看文章末尾">方案一、将主题做为<code>submodule</code>（相关操作请看文章末尾）</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; git submodule add https://github.com/vaga/hugo-theme-m10c.git themes/m10c</code></pre></div>
+<p>添加为 <code>submodule</code>后，如果 <code>m10c</code> 的作者更新了项目，你就只需在 <code>m10c</code> 目录下拉取更新就行了。但是如果自己
+修改了主题里的内容的话，就无法提交，所以我们可以先 <code>fork</code> 项目到自己的仓库，然后再做添加为 <code>submodule</code></p>
+
+<h5 id="方案二-删除m10c目录下的-git文件夹-移除m10c版本控制">方案二、删除m10c目录下的.git文件夹，移除m10c版本控制</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;git clone https://github.com/vaga/hugo-theme-m10c.git themes/m10c</code></pre></div>
+<p><code>clone</code>之后进入<code>theme/m10c</code>删除<code>.git</code>文件夹,移除了主题先前的版本控制,之后就可以将主题添加到 <code>MyBlog</code> 仓库的版本控制</p></li>
+
+<li><p>设置主题，在文件中添加 <code>theme = &quot;m10c&quot;</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;vim config.toml</code></pre></div>
+<p>到这里仅完成了主题的基本配置，如果需要进行更多的配置可以参考 <code>themes/m10c/exampleSite/config.toml</code> 中是如何配置的，关于主题的个性化修改需要自己探索</p></li>
+</ul>
+
+<h3 id="4-创建文章">4.创建文章</h3>
+
+<ul>
+<li><p>确认项目根目录<code>MyBlog/</code>下是否有<code>content</code>文件夹，创建的文章必须要在 <code>content</code> 下面</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; mkdir content</code></pre></div></li>
+
+<li><p>创建第一篇文章放到 <code>content/post</code> 目录</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo new post/first.md</code></pre></div>
+<p>first.md 内容</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+title: <span style="color:#e6db74">&#34;First&#34;</span>
+date: <span style="color:#ae81ff">2019</span>-10-16T16:29:06+08:00
+draft: true
+---</code></pre></div>
+<p>打开<code>first.md</code> 可以看到已经有了三个文件头，可以在 <code>archetypes/default.md</code> 中可修改默认的配置</p></li>
+</ul>
+
+<h3 id="5-本地运行调试">5.本地运行调试</h3>
+
+<ul>
+<li><p>查看草稿文章 <code>(draft = true)</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo server -D 或者 hugo server --buildDrafts
+
+Web Server is available at http://localhost:xxxx/ <span style="color:#f92672">(</span>bind address <span style="color:#ae81ff">127</span>.0.0.1<span style="color:#f92672">)</span></code></pre></div></li>
+
+<li><p>查看正式文章 <code>(draft = false)</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo server
+
+Web Server is available at http://localhost:xxxx/ <span style="color:#f92672">(</span>bind address <span style="color:#ae81ff">127</span>.0.0.1<span style="color:#f92672">)</span></code></pre></div></li>
+</ul>
+
+<p>在浏览器输入地址,即可通过编辑MD文件并在浏览器中实时预览内容</p>
+
+<h3 id="6-生成静态网页资源">6.生成静态网页资源</h3>
+
+<ul>
+<li><p>将需要发布的文章内的属性<code>draft</code>改为<code>false</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; hugo</code></pre></div>
+<p>运行成功后，根目录下多出<code>public</code>文件夹出来，文件夹中的内容就是 <code>Hugo</code> 生成的静态网页</p></li>
+</ul>
+
+<h2 id="三-博客部署到gitee或者github">三.博客部署到Gitee或者GitHub</h2>
+
+<p>我们博客主要就是通过静态网页托管服务来实现的，所以我们要需要将Hugo生成的静态网页放在提供服务的平台。
+由于Github我已经部署了博客，所以这里以Gitee为例，虽然具体有些差别但是官方文档里都有说明。</p>
+
+<h3 id="1-创建pages服务">1.创建Pages服务</h3>
+
+<p><a href="https://gitee.com/help/categories/56">Gitee Pages文档</a></p>
+
+<p><a href="https://help.github.com/en/categories/working-with-github-pages">Github Pages文档</a></p>
+
+<ul>
+<li>首先在 Gitee 上创建 <username>的公开项目,<username> 由于域名并不区分大小写，所以这里全小写形式就行了</li>
+<li>「仓库主页」-&gt;「服务」-&gt;「Gitee Pages」打开 Gitee Pages 服务，
+并强制使用HTTPS，服务开启后Gitee会提供一个Url，这个Url就是博客的地址了，
+同时项目中 config.toml 的 baseURL 要设置成提供的Url</li>
+</ul>
+
+<h3 id="2-上传到远程仓库">2. 上传到远程仓库</h3>
+
+<ul>
+<li><p>进入<code>MyBlog/public</code>目录</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;git init
+&gt;git add .
+&gt;git commit -m <span style="color:#e6db74">&#34;*****&#34;</span>
+&gt;git remote add origin https://*********
+&gt;git push -u origin master</code></pre></div>
+<p><code>push</code> 项目后就可以通过 <code>Gitee</code> 提供的 <code>Url</code> 进行访问</p></li>
+</ul>
+
+<h3 id="3-将博客托管的项目做为submodule加入myblog">3.将博客托管的项目做为submodule加入MyBlog</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;cd MyBlog/
+&gt;git submodule add https://gitee.com/kittoZ/kittoZ.git  public/</code></pre></div>
+<p>由于<code>Hugo</code>生成的静态页面会在<code>public/</code>文件夹下，所以我们将子模块存储在<code>public/</code>，如果我们更新了文章后
+只需要提交该子模块，就能更新博客了</p>
+
+<h2 id="知识点-git子模块管理">知识点：Git子模块管理</h2>
+
+<h3 id="1-添加子模块">1.添加子模块</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt; git submodule add &lt;url&gt; &lt;path&gt;</code></pre></div>
+<ul>
+<li><code>url</code> 为子模块的路径(本文为博客<code>git</code>地址)， <code>path</code> 为子模块存储的目录路径，执行完需重新提交项目</li>
+</ul>
+
+<h3 id="2-克隆壳工程">2.克隆壳工程</h3>
+
+<ul>
+<li><p>重新克隆完壳工程后，子模块并不会一同出现，需要进行初始化</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;git submodule init
+&gt;git submodule update
+或者：
+&gt;git submodule update --init --recursive</code></pre></div></li>
+
+<li><p>子模块更新，当子模块有了新的提交，如何更新本地项目呢？</p>
+
+<ul>
+<li><p>首先进入子模块,拉取更新</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;git pull </code></pre></div></li>
+
+<li><p>返回项目根目录,重新提交项目</p></li>
+</ul></li>
+</ul>
+
+<h3 id="3-删除子模块">3.删除子模块</h3>
+
+<p>处于项目根目录，全部执行完记得重新提交项目</p>
+
+<ul>
+<li><p>将子模块从版本控制中移除</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;git rm --cached 子模块名称</code></pre></div></li>
+
+<li><p>删除子模块目录</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;rm -rf 子模块目录</code></pre></div></li>
+
+<li><p>删除.gitmodules需要删除子模块信息</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;vim .gitmodules</code></pre></div></li>
+
+<li><p>删除文件中的子模块信息</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;vim .git/config   </code></pre></div></li>
+
+<li><p>删除模块下的子模块目录</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">&gt;rm -rf .git/module/子模块名称 </code></pre></div></li>
+</ul></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/hugo"><span class="tag">Hugo</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Handler on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/tags/handler/</link>
+    <description>Recent content in Handler on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 15 Jun 2019 21:20:38 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/tags/handler/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Handler源码分析</title>
+      <link>https://www.kitto.fun/post/handler_source_analysis/</link>
+      <pubDate>Sat, 15 Jun 2019 21:20:38 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/handler_source_analysis/</guid>
+      <description>&lt;p&gt;安卓开发中不能在子线程中更新UI的操作(不绝对,详情&lt;em&gt;View绘制流程&lt;/em&gt;-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

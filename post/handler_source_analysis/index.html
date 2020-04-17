@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>Handler源码分析</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content="安卓开发中不能在子线程中更新UI的操作(不绝对,详情View绘制流程-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。
+">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="Handler源码分析">
+    <meta name="twitter:description" content="安卓开发中不能在子线程中更新UI的操作(不绝对,详情View绘制流程-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。
+">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/handler_source_analysis/final.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Handler源码分析">
+  <meta property="og:description" content="安卓开发中不能在子线程中更新UI的操作(不绝对,详情View绘制流程-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/handler_source_analysis/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/handler_source_analysis/final.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/handler_source_analysis/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">Handler源码分析</h1>
+      <p class="post-meta">@张懂 · Jun 15, 2019 · 5 min read</p>
+    </header>
+    <article class="post-content"><p>安卓开发中不能在子线程中更新UI的操作(不绝对,详情<em>View绘制流程</em>-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI。</p>
+
+<h3 id="准备">准备</h3>
+
+<h4 id="在理解handler之前-需要对于链表和数组的有一定的理解">在理解Handler之前，需要对于链表和数组的有一定的理解:</h4>
+
+<p>链表和数组都是用于存储数据的集合，所以他们的用图是相同的。那么他们两者有什么区别呢？换一种话来讲，就是什么时候使用数据,什么时候使用链表的问题了？</p>
+
+<p><strong>数组</strong>：有索引做下标，访问元素快，但是在插入操作的时候就较慢。在插入元素的时候指定插入的位置，可能需要移动其他元素的位置，才有位置供新元素进行插入。如下图所示，当需要在元素&rdquo;B&rdquo;前插入一个元素&rdquo;E&rdquo;时，我们需要找到元素&rdquo;B&rdquo;的 index 并将 index 上包括 1 之后的元素向后移动才能腾出位置给&rdquo;E&rdquo;。</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/array.png"/> 
+</figure>
+
+<p><strong>链表</strong>:与数组相反，对于插入操作的时候较快，但是在访问元素时较慢。如下图所示，当需要在元素&rdquo;B&rdquo;前插入一个元素&rdquo;D&rdquo;时，我们需要找到元素&rdquo;B&rdquo;和记录下它前一个元素&rdquo;A&rdquo;，然后将A.next指向元素&rdquo;D&rdquo;，最后将D.next指向元素&rdquo;B&rdquo;，即可完成，无需数组一样的元素移动。</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/list.png"/> 
+</figure>
+
+<h3 id="正文">正文</h3>
+
+<h4 id="一-handler使用">一、Handler使用</h4>
+
+<p>安卓开发中不能在子线程中更新UI的操作(不绝对,详情<em>View绘制流程</em>-未完成）。所以我们在子线程中需要使用Handler来发送Message来让主线程更新UI(未使用静态内部类)。</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/handler%e4%bd%bf%e7%94%a8.png"/> 
+</figure>
+
+<p>在上图中的代码主要是实现，在3S后将界面中的text文本更新为“handleMessage”。那么这主要是如何实现的呢？为什么会从子线程切换到主线程的呢？让我们看看 <code>sendMessage()</code> 发生了什么。</p>
+
+<p>我们点进方法中可以看到 sendMessage()的流程如下(参数忽略):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">sendMessage() <span style="color:#f92672">--&gt;</span> sendMessageDelayed() <span style="color:#f92672">--&gt;</span> sendMessageAtTime()<span style="color:#f92672">--&gt;</span> enqueueMessage()</code></pre></div>
+<p>Handler.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">sendMessage</span>(Message <span style="color:#a6e22e">msg</span>)
+    {
+        <span style="color:#66d9ef">return</span> sendMessageDelayed(msg, 0);
+    }
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">sendMessageDelayed</span>(Message <span style="color:#a6e22e">msg</span>, <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">delayMillis</span>)
+    {
+        <span style="color:#66d9ef">if</span> (delayMillis <span style="color:#f92672">&lt;</span> 0) {
+            delayMillis <span style="color:#f92672">=</span> 0;
+        }
+        <span style="color:#66d9ef">return</span> sendMessageAtTime(msg, SystemClock.<span style="color:#a6e22e">uptimeMillis</span>() <span style="color:#f92672">+</span> delayMillis);
+    }
+    
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">boolean</span> sendMessageAtTime(Message <span style="color:#a6e22e">msg</span>, <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">uptimeMillis</span>) {
+        MessageQueue <span style="color:#a6e22e">queue</span> <span style="color:#f92672">=</span> mQueue;
+        <span style="color:#66d9ef">if</span> (queue <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            RuntimeException <span style="color:#a6e22e">e</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RuntimeException(
+                    <span style="color:#66d9ef">this</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; sendMessageAtTime() called with no mQueue&#34;</span>);
+            Log.<span style="color:#a6e22e">w</span>(<span style="color:#e6db74">&#34;Looper&#34;</span>, e.<span style="color:#a6e22e">getMessage</span>(), e);
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+        }
+        <span style="color:#66d9ef">return</span> enqueueMessage(queue, msg, uptimeMillis);
+    }
+    
+    
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">boolean</span> enqueueMessage(MessageQueue <span style="color:#a6e22e">queue</span>, Message <span style="color:#a6e22e">msg</span>, <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">uptimeMillis</span>) {
+        msg.<span style="color:#a6e22e">target</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>;
+        <span style="color:#66d9ef">if</span> (mAsynchronous) {
+            msg.<span style="color:#a6e22e">setAsynchronous</span>(<span style="color:#66d9ef">true</span>);
+        }
+        <span style="color:#66d9ef">return</span> queue.<span style="color:#a6e22e">enqueueMessage</span>(msg, uptimeMillis);
+    }</code></pre></div>
+<ul>
+<li>在sendMessage的时候，实际就是调用sendMessageDelayed只是delayMillis = 0 ;</li>
+<li>在sendMessageAtTime时，<code>SystemClock.uptimeMillis() + delayMillis</code>为当前系统时间 + 延时(<strong>注意</strong>);</li>
+<li>在sendMessageAtTime中出现了<code>MessageQueue</code>进行存储<code>Message</code>;</li>
+<li><code>msg.target</code>是<code>Handler</code>对象实例</li>
+</ul>
+
+<p><strong>那么<code>MessageQueue.enqueueMessage()</code>里面发生了什么:</strong></p>
+
+<p>MessageQueue.java部分代码(方法中删除了干扰理解的代码)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Message <span style="color:#a6e22e">mMessages</span>;
+
+<span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">enqueueMessage</span>(Message <span style="color:#a6e22e">msg</span>, <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">when</span>) {
+        <span style="color:#66d9ef">if</span> (msg.<span style="color:#a6e22e">target</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalArgumentException(<span style="color:#e6db74">&#34;Message must have a target.&#34;</span>);
+        }
+        <span style="color:#66d9ef">if</span> (msg.<span style="color:#a6e22e">isInUse</span>()) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(msg <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; This message is already in use.&#34;</span>);
+        }
+
+        <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+            ...
+            
+            msg.<span style="color:#a6e22e">when</span> <span style="color:#f92672">=</span> when;
+            Message <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> mMessages;
+            <span style="color:#66d9ef">if</span> (p <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> when <span style="color:#f92672">==</span> 0 <span style="color:#f92672">||</span> when <span style="color:#f92672">&lt;</span> p.<span style="color:#a6e22e">when</span>) {
+            <span style="color:#75715e">//添加第一个message，或message的执行时间为0或或者小于表头的时间(可以看出mMessage为表头)
+</span><span style="color:#75715e"></span>                msg.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> p;
+                mMessages <span style="color:#f92672">=</span> msg;
+            } <span style="color:#66d9ef">else</span> {
+                ...
+                
+                <span style="color:#75715e">//死循环，找出message执行时间对应的位置再跳出
+</span><span style="color:#75715e"></span>                Message <span style="color:#a6e22e">prev</span>;
+                <span style="color:#66d9ef">for</span> (;;) {
+                    prev <span style="color:#f92672">=</span> p;
+                    p <span style="color:#f92672">=</span> p.<span style="color:#a6e22e">next</span>;
+                    <span style="color:#66d9ef">if</span> (p <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> when <span style="color:#f92672">&lt;</span> p.<span style="color:#a6e22e">when</span>) {
+                        <span style="color:#66d9ef">break</span>;
+                    }
+                    ...
+                    
+                }
+                <span style="color:#75715e">//插入元素
+</span><span style="color:#75715e"></span>                msg.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> p; <span style="color:#75715e">// invariant: p == prev.next
+</span><span style="color:#75715e"></span>                prev.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> msg;
+            }
+           ...
+                
+        }
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+    }</code></pre></div>
+<ul>
+<li>msg.when为之前传入的 <code>SystemClock.uptimeMillis() + delayMillis</code></li>
+<li>mMessages为表头</li>
+<li>msg.next为Message对象</li>
+</ul>
+
+<p>从上面可以看出，这就是文章开头的链表插入的操作。由于这里频繁的执行插入操作，并且插入的位置除了开头和结尾，还有中间。如果使用数组来存储的话，将会损耗较多的性能。</p>
+
+<h4 id="二-图示说明-在子线程中要发送三条message-观察它们的存储情况">二、图示说明（在子线程中要发送三条Message，观察它们的存储情况）</h4>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/MessageQueue_1.png"/> 
+</figure>
+
+<h5 id="1-在插入message1时-表头为null-所以-mmessages-message1">1.在插入message1时，表头为null,所以 mMessages = message1;</h5>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/MessageQueue_2.png"/> 
+</figure>
+
+<h5 id="2-在插入message2时-p-null-when-0-when-p-when-进入-else-开始死循环-当prev-messsage1-p-null-跳出死循环">2.在插入message2时， p!= null、when != 0 、 when &gt; p.when, 进入<strong>else</strong>。开始死循环，当prev = messsage1，p = null，跳出死循环</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    message2.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;   message1.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> message2;</code></pre></div>
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/MessageQueue_3.png"/> 
+</figure>
+
+<h5 id="3-在插入message3时-p-null-when-0-when-p-when-进入-else-开始死循环-当prev-message1-p-message2时-message3-when-message2-when-跳出死循环">3.在插入message3时，p!= null、when != 0、when &gt; p.when，进入<strong>else</strong>。开始死循环，当prev = message1, p = message2时，message3.when &lt; message2.when，跳出死循环</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">     message3.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> message2;   message1.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> message3;</code></pre></div>
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/MessageQueue_4.png"/> 
+</figure>
+
+<h4 id="三-looper分析">三、Looper分析</h4>
+
+<p>以上分析了Message存储消息队列的流程。那么消息是怎么被取出来在主线程执行的呢？什么时候执行 <code>public void handleMessage(Message msg);</code>的呢？</p>
+
+<p>那么就要引入另一个对象了Looper。不知道有多少人试过在，子线程中new Handler()对象。试过的人都知道会出现如下的错误:</p>
+
+<p>错误代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">      <span style="color:#66d9ef">new</span> Thread(<span style="color:#66d9ef">new</span> Runnable() {
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> run() {
+                Handler <span style="color:#a6e22e">handler</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Handler();
+                <span style="color:#66d9ef">try</span> {
+                    Thread.<span style="color:#a6e22e">sleep</span>(3000);
+                } <span style="color:#66d9ef">catch</span> (InterruptedException <span style="color:#a6e22e">e</span>) {
+                    e.<span style="color:#a6e22e">printStackTrace</span>();
+                }
+
+                Message <span style="color:#a6e22e">message1</span> <span style="color:#f92672">=</span> Message.<span style="color:#a6e22e">obtain</span>();
+                message1.<span style="color:#a6e22e">obj</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;handleMessage&#34;</span>;
+                mHandler.<span style="color:#a6e22e">sendMessage</span>(message1);
+            }
+        }).<span style="color:#a6e22e">start</span>();</code></pre></div>
+<p>报错信息</p>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/Looper_error.png"/> 
+</figure>
+
+<p>正确代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">      <span style="color:#66d9ef">new</span> Thread(<span style="color:#66d9ef">new</span> Runnable() {
+            <span style="color:#a6e22e">@Override</span>
+            <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> run() {
+                Looper.<span style="color:#a6e22e">prepare</span>();
+                Handler <span style="color:#a6e22e">handler</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Handler() {
+                    <span style="color:#a6e22e">@Override</span>
+                    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> handleMessage(Message <span style="color:#a6e22e">msg</span>) {
+                        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">null</span> <span style="color:#f92672">!=</span> msg.<span style="color:#a6e22e">obj</span>)
+                            Log.<span style="color:#a6e22e">i</span>(<span style="color:#e6db74">&#34;tag&#34;</span>, msg.<span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">toString</span>());
+                    }
+                };
+                <span style="color:#66d9ef">try</span> {
+                    Thread.<span style="color:#a6e22e">sleep</span>(3000);
+                } <span style="color:#66d9ef">catch</span> (InterruptedException <span style="color:#a6e22e">e</span>) {
+                    e.<span style="color:#a6e22e">printStackTrace</span>();
+                }
+                Message <span style="color:#a6e22e">message1</span> <span style="color:#f92672">=</span> Message.<span style="color:#a6e22e">obtain</span>();
+                message1.<span style="color:#a6e22e">obj</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;handleMessage1&#34;</span>;
+                mHandler.<span style="color:#a6e22e">sendMessage</span>(message1);
+
+                Message <span style="color:#a6e22e">message2</span> <span style="color:#f92672">=</span> Message.<span style="color:#a6e22e">obtain</span>();
+                message2.<span style="color:#a6e22e">obj</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;handleMessage2&#34;</span>;
+                handler.<span style="color:#a6e22e">sendMessage</span>(message2);
+                Looper.<span style="color:#a6e22e">loop</span>();
+            }
+        }).<span style="color:#a6e22e">start</span>();</code></pre></div>
+<p>为什么要这样子写呢？我们看看Handler的构造方法:</p>
+
+<p>Handler.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Handler</span>() {
+        <span style="color:#66d9ef">this</span>(<span style="color:#66d9ef">null</span>, <span style="color:#66d9ef">false</span>);
+    }
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Handler</span>(Callback <span style="color:#a6e22e">callback</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">async</span>) {
+    <span style="color:#66d9ef">if</span> (FIND_POTENTIAL_LEAKS) {
+        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">Class</span><span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Handler</span><span style="color:#f92672">&gt;</span> klass <span style="color:#f92672">=</span> getClass();
+        <span style="color:#66d9ef">if</span> ((klass.<span style="color:#a6e22e">isAnonymousClass</span>() <span style="color:#f92672">||</span> klass.<span style="color:#a6e22e">isMemberClass</span>() <span style="color:#f92672">||</span> klass.<span style="color:#a6e22e">isLocalClass</span>()) <span style="color:#f92672">&amp;&amp;</span>
+                (klass.<span style="color:#a6e22e">getModifiers</span>() <span style="color:#f92672">&amp;</span> Modifier.<span style="color:#a6e22e">STATIC</span>) <span style="color:#f92672">==</span> 0) {
+            Log.<span style="color:#a6e22e">w</span>(TAG, <span style="color:#e6db74">&#34;The following Handler class should be static or leaks might occur: &#34;</span> <span style="color:#f92672">+</span>
+                klass.<span style="color:#a6e22e">getCanonicalName</span>());
+        }
+    }
+
+    mLooper <span style="color:#f92672">=</span> Looper.<span style="color:#a6e22e">myLooper</span>();
+    <span style="color:#66d9ef">if</span> (mLooper <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(
+            <span style="color:#e6db74">&#34;Can&#39;t create handler inside thread that has not called Looper.prepare()&#34;</span>);
+    }
+    mQueue <span style="color:#f92672">=</span> mLooper.<span style="color:#a6e22e">mQueue</span>;
+    mCallback <span style="color:#f92672">=</span> callback;
+    mAsynchronous <span style="color:#f92672">=</span> async;
+    }</code></pre></div>
+<p>相信大家一定注意到了下面的代码,抛出的异常与控制台里的异常是一样的。且注意 <code>mQueue = mLooper.mQueue;</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  mLooper <span style="color:#f92672">=</span> Looper.<span style="color:#a6e22e">myLooper</span>();
+    <span style="color:#66d9ef">if</span> (mLooper <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(
+            <span style="color:#e6db74">&#34;Can&#39;t create handler inside thread that has not called Looper.prepare()&#34;</span>);
+    }</code></pre></div>
+<p>那<code>Looper.mLooper()</code>返回的值为什么为空呢？让我们再进一步深入</p>
+
+<p>Looper.java部分源码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">static</span> <span style="color:#a6e22e">final</span> ThreadLocal<span style="color:#f92672">&lt;</span>Looper<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">sThreadLocal</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadLocal<span style="color:#f92672">&lt;</span>Looper<span style="color:#f92672">&gt;</span>();
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">prepare</span>() {
+        prepare(<span style="color:#66d9ef">true</span>);
+    }
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">prepare</span>(<span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">quitAllowed</span>) {
+        <span style="color:#66d9ef">if</span> (sThreadLocal.<span style="color:#a6e22e">get</span>() <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(<span style="color:#e6db74">&#34;Only one Looper may be created per thread&#34;</span>);
+        }
+        sThreadLocal.<span style="color:#a6e22e">set</span>(<span style="color:#66d9ef">new</span> Looper(quitAllowed));
+    }
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#a6e22e">@Nullable</span> Looper <span style="color:#a6e22e">myLooper</span>() {
+        <span style="color:#66d9ef">return</span> sThreadLocal.<span style="color:#a6e22e">get</span>();
+    }
+    
+     <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loop</span>() {
+        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">Looper</span> me <span style="color:#f92672">=</span> myLooper();
+        <span style="color:#66d9ef">if</span> (me <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(<span style="color:#e6db74">&#34;No Looper; Looper.prepare() wasn&#39;t called on this thread.&#34;</span>);
+        }
+        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">MessageQueue</span> queue <span style="color:#f92672">=</span> me.<span style="color:#a6e22e">mQueue</span>;
+        ...
+        <span style="color:#75715e">//死循环
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> (;;) {
+            Message <span style="color:#a6e22e">msg</span> <span style="color:#f92672">=</span> queue.<span style="color:#a6e22e">next</span>(); <span style="color:#75715e">// might block
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> (msg <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+                <span style="color:#75715e">// No message indicates that the message queue is quitting.
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">return</span>;
+            }
+
+            ...
+
+            <span style="color:#66d9ef">try</span> {
+                msg.<span style="color:#a6e22e">target</span>.<span style="color:#a6e22e">dispatchMessage</span>(msg);
+                ...
+            } <span style="color:#66d9ef">finally</span> {
+               ...
+            }
+            ...
+        }
+    }</code></pre></div>
+<ul>
+<li>msg.target对应的是Handler对象</li>
+<li>ThreadLocal最后会解释</li>
+</ul>
+
+<p>从<code>mLooper()</code> 方法中看出Looper对象是从<code>ThreadLocal</code>中得到的。它是通过调用<code>prepare()</code>方法实例化且保存的。认真的应该可以看出不仅在子线程调用了 <code>Looper.prepare();</code> ，而且在子线程结尾处调用了 <code>Looper.loop();</code> 如果这里没有该方法是无法让新建的Handler收到消息的，而且为什么它要放在线程的最后呢？
+让我们看看在<code>loop()</code> 里执行了什么。拿到当前线程的 <code>Looper</code> 继而拿到 Looper 中的 <code>MessageQueue</code>。然后开始进入死循环， 当MessageQueue取出的Message不为空时，就调用 Handler的<code>dispatchMessage()</code> 。如果不放在最后，就会一直在死循环中，无法执行loop()之后的代码。</p>
+
+<p>所以回到Handler的dispatchMessage()方法:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> dispatchMessage(Message <span style="color:#a6e22e">msg</span>) {
+        <span style="color:#66d9ef">if</span> (msg.<span style="color:#a6e22e">callback</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+            handleCallback(msg);
+        } <span style="color:#66d9ef">else</span> {
+            <span style="color:#66d9ef">if</span> (mCallback <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+                <span style="color:#66d9ef">if</span> (mCallback.<span style="color:#a6e22e">handleMessage</span>(msg)) {
+                    <span style="color:#66d9ef">return</span>;
+                }
+            }
+            handleMessage(msg);
+        }
+    }</code></pre></div>
+<p>在这里调用了 handleMessage()。不过是Message.CallBack为空的时候才调用类本身的handleMessage();</p>
+
+<p><strong>到目前为止是不是还有个疑问？</strong> 为什么在主线程中的new Handler()的时候不用<code>Looper.prepare()</code>，<code>looper.loop()</code>;</p>
+
+<p>ActivityThread.java部分源码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String[] <span style="color:#a6e22e">args</span>) {
+        Trace.<span style="color:#a6e22e">traceBegin</span>(Trace.<span style="color:#a6e22e">TRACE_TAG_ACTIVITY_MANAGER</span>, <span style="color:#e6db74">&#34;ActivityThreadMain&#34;</span>);
+        SamplingProfilerIntegration.<span style="color:#a6e22e">start</span>();
+
+        <span style="color:#75715e">// CloseGuard defaults to true and can be quite spammy.  We
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// disable it here, but selectively enable it later (via
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// StrictMode) on debug builds, but using DropBox, not logs.
+</span><span style="color:#75715e"></span>        CloseGuard.<span style="color:#a6e22e">setEnabled</span>(<span style="color:#66d9ef">false</span>);
+
+        Environment.<span style="color:#a6e22e">initForCurrentUser</span>();
+
+        <span style="color:#75715e">// Set the reporter for event logging in libcore
+</span><span style="color:#75715e"></span>        EventLogger.<span style="color:#a6e22e">setReporter</span>(<span style="color:#66d9ef">new</span> EventLoggingReporter());
+
+        <span style="color:#75715e">// Make sure TrustedCertificateStore looks in the right place for CA certificates
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">File</span> configDir <span style="color:#f92672">=</span> Environment.<span style="color:#a6e22e">getUserConfigDirectory</span>(UserHandle.<span style="color:#a6e22e">myUserId</span>());
+        TrustedCertificateStore.<span style="color:#a6e22e">setDefaultUserDirectory</span>(configDir);
+
+        Process.<span style="color:#a6e22e">setArgV0</span>(<span style="color:#e6db74">&#34;&lt;pre-initialized&gt;&#34;</span>);
+        
+        <span style="color:#75715e">// --------------------------------------
+</span><span style="color:#75715e"></span>        Looper.<span style="color:#a6e22e">prepareMainLooper</span>();
+        <span style="color:#75715e">// --------------------------------------
+</span><span style="color:#75715e"></span>
+
+        ActivityThread <span style="color:#a6e22e">thread</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ActivityThread();
+        thread.<span style="color:#a6e22e">attach</span>(<span style="color:#66d9ef">false</span>);
+
+        <span style="color:#66d9ef">if</span> (sMainThreadHandler <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            sMainThreadHandler <span style="color:#f92672">=</span> thread.<span style="color:#a6e22e">getHandler</span>();
+        }
+
+        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">false</span>) {
+            Looper.<span style="color:#a6e22e">myLooper</span>().<span style="color:#a6e22e">setMessageLogging</span>(<span style="color:#66d9ef">new</span>
+                    LogPrinter(Log.<span style="color:#a6e22e">DEBUG</span>, <span style="color:#e6db74">&#34;ActivityThread&#34;</span>));
+        }
+
+        <span style="color:#75715e">// End of event ActivityThreadMain.
+</span><span style="color:#75715e"></span>        Trace.<span style="color:#a6e22e">traceEnd</span>(Trace.<span style="color:#a6e22e">TRACE_TAG_ACTIVITY_MANAGER</span>);
+        
+        <span style="color:#75715e">// --------------------------------------
+</span><span style="color:#75715e"></span>        Looper.<span style="color:#a6e22e">loop</span>();
+        <span style="color:#75715e">// --------------------------------------
+</span><span style="color:#75715e"></span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException(<span style="color:#e6db74">&#34;Main thread loop unexpectedly exited&#34;</span>);
+    }</code></pre></div>
+<p>prepareMainLooper()方法</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">prepareMainLooper</span>() {
+        prepare(<span style="color:#66d9ef">false</span>);
+        <span style="color:#66d9ef">synchronized</span> (Looper.<span style="color:#a6e22e">class</span>) {
+            <span style="color:#66d9ef">if</span> (sMainLooper <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;The main Looper has already been prepared.&#34;</span>);
+            }
+            sMainLooper <span style="color:#f92672">=</span> myLooper();
+        }
+    }</code></pre></div>
+<p>想必看到这两个方法就懂了吧！</p>
+
+<p><strong>所以为什么能在子线程中调用Handler来更新UI呢？</strong></p>
+
+<ol>
+<li>在子线程中添加Message到消息队列。</li>
+<li>通过主线程的Looper来进行回调Handler中的<code>dispatchMessage()</code>方法。</li>
+<li>dispatchMessage()中调用<code>handleMessage()</code>方法。</li>
+</ol>
+
+<figure class="zoomable">
+    <img src="https://www.kitto.fun/media/post/handler_source_analysis/final.png"/> 
+</figure>
+
+<h3 id="插曲">插曲</h3>
+
+<blockquote>
+<p>ThreadLocal：提供线程内的局部变量，这种局部变量仅仅在线程的生命周期。每个线程中的变量不影响到其他线程。结合目前的情况就是 1 个线程对应 1个 Looper 对应 1 个MessageQueue</p>
+</blockquote>
+
+<p>ThreadLocal.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> set(T <span style="color:#a6e22e">value</span>) {
+        Thread <span style="color:#a6e22e">t</span> <span style="color:#f92672">=</span> Thread.<span style="color:#a6e22e">currentThread</span>();
+        ThreadLocalMap <span style="color:#a6e22e">map</span> <span style="color:#f92672">=</span> getMap(t);
+        <span style="color:#66d9ef">if</span> (map <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>)
+            map.<span style="color:#a6e22e">set</span>(<span style="color:#66d9ef">this</span>, value);
+        <span style="color:#66d9ef">else</span>
+            createMap(t, value);
+    }
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">T</span> get() {
+        Thread <span style="color:#a6e22e">t</span> <span style="color:#f92672">=</span> Thread.<span style="color:#a6e22e">currentThread</span>();
+        ThreadLocalMap <span style="color:#a6e22e">map</span> <span style="color:#f92672">=</span> getMap(t);
+        <span style="color:#66d9ef">if</span> (map <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+            ThreadLocalMap.<span style="color:#a6e22e">Entry</span> <span style="color:#a6e22e">e</span> <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">getEntry</span>(<span style="color:#66d9ef">this</span>);
+            <span style="color:#66d9ef">if</span> (e <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+                <span style="color:#a6e22e">@SuppressWarnings</span>(<span style="color:#e6db74">&#34;unchecked&#34;</span>)
+                T <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> (T)e.<span style="color:#a6e22e">value</span>;
+                <span style="color:#66d9ef">return</span> result;
+            }
+        }
+        <span style="color:#66d9ef">return</span> setInitialValue();
+    }</code></pre></div></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/android"><span class="tag">Android</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/handler"><span class="tag">Handler</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        This post was published <strong>198</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

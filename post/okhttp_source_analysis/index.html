@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>OkHttp源码分析</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content="文章逐步分析OkHttp框架代码，一步一步了解框架原理
+">
+
+  
+  
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="OkHttp源码分析">
+    <meta name="twitter:description" content="文章逐步分析OkHttp框架代码，一步一步了解框架原理
+">
+    <meta name="twitter:image" content="https://www.kitto.fun/media/post/okhttp_source_analysis/01.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="OkHttp源码分析">
+  <meta property="og:description" content="文章逐步分析OkHttp框架代码，一步一步了解框架原理
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/okhttp_source_analysis/">
+  <meta property="og:image" content="https://www.kitto.fun/media/post/okhttp_source_analysis/01.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/okhttp_source_analysis/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">OkHttp源码分析</h1>
+      <p class="post-meta">@张懂 · Jul 1, 2019 · 13 min read</p>
+    </header>
+    <article class="post-content"><p>文章逐步分析OkHttp框架代码，一步一步了解框架原理</p>
+
+<h2 id="0-涉及到的设计模式">0.涉及到的设计模式</h2>
+
+<ul>
+<li><a href="https://www.kitto.fun/post/design_pattern_01_singleton">单例设计模式</a></li>
+<li><a href="https://www.jianshu.com/p/bd9cdd9ab5df">建造者设计模式</a></li>
+<li>责任链设计模式</li>
+<li>&hellip;</li>
+</ul>
+
+<h2 id="一-请求分类与-okhttp-请求步骤">一.请求分类与<code>OkHttp</code>请求步骤</h2>
+
+<h3 id="1-okhttp同步请求">1.OkHttp同步请求</h3>
+
+<blockquote>
+<p>发送请求后,UI线程之后就会进入阻塞状态，直到请求结束。</p>
+</blockquote>
+
+<ul>
+<li>1.创建 <code>OkHttpClient</code> 和 <code>Request</code> 对象</li>
+<li>2.将 <code>Request</code> 封装成 <code>Call</code> 对象</li>
+<li>3.调用 <code>Call</code> 的 <code>execute()</code> 方法执行同步请求</li>
+</ul>
+
+<h3 id="2-okhttp异步请求">2.OkHttp异步请求</h3>
+
+<blockquote>
+<p>发送请求后,不阻塞UI线程</p>
+</blockquote>
+
+<ul>
+<li>1.创建 <code>OkHttpClient</code> 和 <code>Request</code> 对象</li>
+<li>2.将 <code>Request</code> 封装成 <code>Call</code> 对象</li>
+<li>3.调用<code>Call</code> 的 <code>enqueue()</code> 方法执行异步请求( <code>CallBack</code> 对象的  <code>onResponse</code> 和 <code>onFailure</code> 都是在<strong>子线程</strong>中的)</li>
+</ul>
+
+<h2 id="二-okhttp-请求步骤分析">二.OkHttp 请求步骤分析</h2>
+
+<h3 id="1-同步-异步请求第一步">1.同步/异步请求第一步</h3>
+
+<h4 id="okhttpclient-builder-的构造方法-建造者设计模式"><code>OkHttpClient.Builder</code> 的构造方法(建造者设计模式)</h4>
+
+<ul>
+<li><code>dispatcher</code> 分发器,由它决定异步请求是进行直接处理还是等待。同步请求则是直接处理。</li>
+<li><code>connectionPool</code> 连接池,客户端和服务器的连接可以理解为一个连接对象，由 <code>connectionPool</code> 进行管理，所以如果当 <code>Url</code> 的请求相同的时候，我们可以选择连接对象进行复用;实现了策略规定的，哪些网络连接可以保持打开状态，哪些网络连接可以复用.</li>
+<li>&hellip;</li>
+</ul>
+
+<h4 id="request-builder-的构造方法-建造者设计模式"><code>Request.Builder</code> 的构造方法(建造者设计模式)</h4>
+
+<ul>
+<li><code>method</code> 默认 <strong>&ldquo;Get&rdquo;</strong></li>
+<li><code>headers</code> 保存头部信息</li>
+<li><code>Request.Builder.build()</code> 方法直接创建 <code>Request</code> 对象</li>
+<li>&hellip;</li>
+</ul>
+
+<p>插入知识点<strong>(重点)</strong></p>
+
+<h4 id="dispatcher-类为重点-后面有很多地方涉及到-所以我们先详细分析"><code>Dispatcher</code> 类为重点，后面有很多地方涉及到，所以我们先详细分析。</h4>
+
+<p>Dispatcher.java部分代码(<strong>队列</strong>)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/** Ready async calls in the order they&#39;ll be run. */</span>
+<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">final</span> Deque<span style="color:#f92672">&lt;</span>AsyncCall<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">readyAsyncCalls</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+
+<span style="color:#75715e">/** Running asynchronous calls. Includes canceled calls that haven&#39;t finished yet. */</span>
+<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">final</span> Deque<span style="color:#f92672">&lt;</span>AsyncCall<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runningAsyncCalls</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+
+<span style="color:#75715e">/** Running synchronous calls. Includes canceled calls that haven&#39;t finished yet. */</span>
+<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">final</span> Deque<span style="color:#f92672">&lt;</span>RealCall<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">runningSyncCalls</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();</code></pre></div>
+<ul>
+<li>定义了三个队列，<strong>异步就绪队列</strong>、<strong>异步执行队列</strong>、<strong>同步执行队列</strong></li>
+</ul>
+
+<p>Dispatcher.java部分代码(<strong>线程池</strong>)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">synchronized</span> ExecutorService <span style="color:#a6e22e">executorService</span>() {
+    <span style="color:#66d9ef">if</span> (executorService <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+      executorService <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadPoolExecutor(0, Integer.<span style="color:#a6e22e">MAX_VALUE</span>, 60, TimeUnit.<span style="color:#a6e22e">SECONDS</span>,
+          <span style="color:#66d9ef">new</span> SynchronousQueue<span style="color:#f92672">&lt;</span>Runnable<span style="color:#f92672">&gt;</span>(), Util.<span style="color:#a6e22e">threadFactory</span>(<span style="color:#e6db74">&#34;OkHttp Dispatcher&#34;</span>, <span style="color:#66d9ef">false</span>));
+    }
+    <span style="color:#66d9ef">return</span> executorService;
+}</code></pre></div>
+<ul>
+<li><code>Dispatcher</code>维护了一个单例的线程池用于执行请求</li>
+</ul>
+
+<p>Dispatcher.java部分代码(<strong>executed,enqueue</strong>)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">synchronized</span> <span style="color:#a6e22e">void</span> executed(RealCall <span style="color:#a6e22e">call</span>) {
+    runningSyncCalls.<span style="color:#a6e22e">add</span>(call);
+}
+  
+<span style="color:#66d9ef">synchronized</span> <span style="color:#a6e22e">void</span> enqueue(AsyncCall <span style="color:#a6e22e">call</span>) {
+    <span style="color:#66d9ef">if</span> (runningAsyncCalls.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&lt;</span> maxRequests <span style="color:#f92672">&amp;&amp;</span> runningCallsForHost(call) <span style="color:#f92672">&lt;</span> maxRequestsPerHost) {
+      runningAsyncCalls.<span style="color:#a6e22e">add</span>(call);
+      executorService().<span style="color:#a6e22e">execute</span>(call);
+    } <span style="color:#66d9ef">else</span> {
+      readyAsyncCalls.<span style="color:#a6e22e">add</span>(call);
+    }
+}</code></pre></div>
+<ul>
+<li><code>excuted()</code> 方法将请求加到<strong>同步执行队列</strong>中(但是什么时候执行呢？继续往下会有进一步了解)</li>
+<li><code>enqueue()</code> 方法当 <strong>异步执行队列</strong> 的请求数未达到最大值且请求的host也未达到最大值时，将请求加入 <strong>异步执行队列</strong> 并开始执行。否则加入 <strong>异步就绪队列</strong></li>
+</ul>
+
+<p>Dispatcher.java 部分代码(<strong>finished()</strong>)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#75715e">/** Used by {@code AsyncCall#run} to signal completion. */</span>
+  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">finished</span>(AsyncCall <span style="color:#a6e22e">call</span>) {
+    finished(runningAsyncCalls, call, <span style="color:#66d9ef">true</span>);
+  }
+
+  <span style="color:#75715e">/** Used by {@code Call#execute} to signal completion. */</span>
+  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">finished</span>(RealCall <span style="color:#a6e22e">call</span>) {
+    finished(runningSyncCalls, call, <span style="color:#66d9ef">false</span>);
+  }
+
+  <span style="color:#66d9ef">private</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">void</span> finished(Deque<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">calls</span>, T <span style="color:#a6e22e">call</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">promoteCalls</span>) {
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">runningCallsCount</span>;
+    Runnable <span style="color:#a6e22e">idleCallback</span>;
+    <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+      <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>calls.<span style="color:#a6e22e">remove</span>(call)) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> AssertionError(<span style="color:#e6db74">&#34;Call wasn&#39;t in-flight!&#34;</span>);
+      <span style="color:#66d9ef">if</span> (promoteCalls) promoteCalls();
+      runningCallsCount <span style="color:#f92672">=</span> runningCallsCount();
+      idleCallback <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">idleCallback</span>;
+    }
+
+    <span style="color:#66d9ef">if</span> (runningCallsCount <span style="color:#f92672">==</span> 0 <span style="color:#f92672">&amp;&amp;</span> idleCallback <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+      idleCallback.<span style="color:#a6e22e">run</span>();
+    }
+  }
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">synchronized</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">runningCallsCount</span>() {
+        <span style="color:#66d9ef">return</span> runningAsyncCalls.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">+</span> runningSyncCalls.<span style="color:#a6e22e">size</span>();
+    }
+    
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">void</span> promoteCalls() {
+        <span style="color:#66d9ef">if</span> (runningAsyncCalls.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&gt;=</span> maxRequests) <span style="color:#66d9ef">return</span>; <span style="color:#75715e">// Already running max capacity.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> (readyAsyncCalls.<span style="color:#a6e22e">isEmpty</span>()) <span style="color:#66d9ef">return</span>; <span style="color:#75715e">// No ready calls to promote.
+</span><span style="color:#75715e"></span>    
+        <span style="color:#66d9ef">for</span> (Iterator<span style="color:#f92672">&lt;</span>AsyncCall<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> readyAsyncCalls.<span style="color:#a6e22e">iterator</span>(); i.<span style="color:#a6e22e">hasNext</span>(); ) {
+          AsyncCall <span style="color:#a6e22e">call</span> <span style="color:#f92672">=</span> i.<span style="color:#a6e22e">next</span>();
+    
+          <span style="color:#66d9ef">if</span> (runningCallsForHost(call) <span style="color:#f92672">&lt;</span> maxRequestsPerHost) {
+            i.<span style="color:#a6e22e">remove</span>();
+            runningAsyncCalls.<span style="color:#a6e22e">add</span>(call);
+            executorService().<span style="color:#a6e22e">execute</span>(call);
+          }
+    
+          <span style="color:#66d9ef">if</span> (runningAsyncCalls.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&gt;=</span> maxRequests) <span style="color:#66d9ef">return</span>; <span style="color:#75715e">// Reached max capacity.
+</span><span style="color:#75715e"></span>        }
+  }
+    </code></pre></div>
+<ul>
+<li>从最开始的两个方法可以看出 <code>finished()</code> 方法的参数 <code>promoteCalls</code> 用于区别是同步还是异步</li>
+<li>在三个参数的 <code>finished()</code> 中，移除传入队列中的 <code>Call</code> 对象。<strong>(执行完毕的 <code>Call</code> ,后面会知道是哪里调用的 <code>finished</code> 方法，了解 <code>Call</code> 的状态)</strong></li>
+<li>对于异步队列，则执行 <code>promoteCalls()</code> 方法，调整异步请求的队列；如果异步执行队列中的请求数达到最大值或者异步就绪队列中的数量为0则无操作。</li>
+<li><code>promoteCalls()</code> 方法中，将<strong>异步就绪队列</strong>中的任务删除，并将删除的请求添加到<strong>异步执行队列</strong>中，并开始执行请求。<strong>(重点重点重点重点)</strong></li>
+<li><code>runningCallsCount()</code> 方法计算正在运行的请求数量</li>
+<li><code>if (runningCallsCount == 0 &amp;&amp; idleCallback != null)</code> 如果正在请求的数量为<strong>0</strong>(表示 <code>dispatch</code> 分发器中没有可运行的请求) 并且 <code>idleCallback</code> 不为空的时候就执行 <code>idleCallback.run()</code> 方法</li>
+<li><code>idleCallback</code> 当每次 <code>dispathch</code> 的请求数量为<strong>0</strong>时进行回调</li>
+</ul>
+
+<h3 id="2-同步-异步请求第二步">2.同步/异步请求第二步</h3>
+
+<h4 id="2-1-okhttpclient-newcall-方法">2.1. <code>OkHttpClient.newCall()</code> 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Call</span> newCall(Request <span style="color:#a6e22e">request</span>) {
+    <span style="color:#66d9ef">return</span> RealCall.<span style="color:#a6e22e">newRealCall</span>(<span style="color:#66d9ef">this</span>, request, <span style="color:#66d9ef">false</span> <span style="color:#75715e">/* for web socket */</span>);
+  }</code></pre></div>
+<ul>
+<li><code>Call</code> 是一个接口，所以需要关注与它的实现类 <code>RealCall</code></li>
+</ul>
+
+<h4 id="2-2-realcall-newrealcall-方法">2.2. <code>RealCall.newRealCall</code> 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">static</span> <span style="color:#a6e22e">RealCall</span> newRealCall(OkHttpClient <span style="color:#a6e22e">client</span>, Request <span style="color:#a6e22e">originalRequest</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">forWebSocket</span>) {
+    RealCall <span style="color:#a6e22e">call</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealCall(client, originalRequest, forWebSocket);
+    call.<span style="color:#a6e22e">eventListener</span> <span style="color:#f92672">=</span> client.<span style="color:#a6e22e">eventListenerFactory</span>().<span style="color:#a6e22e">create</span>(call);
+    <span style="color:#66d9ef">return</span> call;
+  }</code></pre></div>
+<ul>
+<li>这里实例化了 <code>RealCall</code> 对象，并赋值 <code>listener</code> 对象</li>
+</ul>
+
+<h4 id="2-3-realcall-的构造方法">2.3. <code>RealCall</code>的构造方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">RealCall</span>(OkHttpClient <span style="color:#a6e22e">client</span>, Request <span style="color:#a6e22e">originalRequest</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">forWebSocket</span>) {
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">client</span> <span style="color:#f92672">=</span> client;
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">originalRequest</span> <span style="color:#f92672">=</span> originalRequest;
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">forWebSocket</span> <span style="color:#f92672">=</span> forWebSocket;
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">retryAndFollowUpInterceptor</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RetryAndFollowUpInterceptor(client, forWebSocket);
+  }</code></pre></div>
+<ul>
+<li>可以看出 <code>RealCall</code> 持有之前初始化完毕的 <code>OkHttpClient</code> 对象和 <code>request</code> 对象</li>
+<li><code>RetryAndFollowUpInterceptor</code> 重定向和重试拦截器。。下面着重分析</li>
+</ul>
+
+<h3 id="3-同步请求-call-execute-方法">3.同步请求 <code>call.execute()</code>方法</h3>
+
+<p>因为 <code>Call</code> 为接口，我们需要研究的是实现类 <code>RealCall</code> 的 <code>execute()</code> 方法</p>
+
+<p>RealCall.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> execute() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+      <span style="color:#66d9ef">if</span> (executed) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Already Executed&#34;</span>);
+      executed <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+    }
+    captureCallStackTrace();
+    eventListener.<span style="color:#a6e22e">callStart</span>(<span style="color:#66d9ef">this</span>);
+    <span style="color:#66d9ef">try</span> {
+      client.<span style="color:#a6e22e">dispatcher</span>().<span style="color:#a6e22e">executed</span>(<span style="color:#66d9ef">this</span>);
+      Response <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> getResponseWithInterceptorChain();
+      <span style="color:#66d9ef">if</span> (result <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IOException(<span style="color:#e6db74">&#34;Canceled&#34;</span>);
+      <span style="color:#66d9ef">return</span> result;
+    } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+      eventListener.<span style="color:#a6e22e">callFailed</span>(<span style="color:#66d9ef">this</span>, e);
+      <span style="color:#66d9ef">throw</span> e;
+    } <span style="color:#66d9ef">finally</span> {
+      client.<span style="color:#a6e22e">dispatcher</span>().<span style="color:#a6e22e">finished</span>(<span style="color:#66d9ef">this</span>);
+    }
+  }</code></pre></div>
+<ul>
+<li><code>executed</code> 通过标志位避免请求重复执行</li>
+<li><code>eventListener.callStart(this);</code> 当执行异步或同步请求的时候开启监听</li>
+<li>重点 <code>client.dispatcher().executed(this);</code> 将 <code>call</code> 加入<strong>同步执行队列</strong></li>
+<li><code>getResponseWithInterceptorChain();</code> 依次调用定义的拦截器，<strong>这里就是开始执行请求的地方</strong>(关于拦截器，下面会进行分析)</li>
+<li><code>client.dispatcher().finished(this);</code> 将请求从<strong>同步执行队列</strong>移除</li>
+</ul>
+
+<h3 id="4-异步请求-call-enqueue-方法">4.异步请求 <code>call.enqueue()</code>方法</h3>
+
+<p>因为 <code>Call</code> 为接口，我们需要研究的是实现类 <code>RealCall</code> 的 <code>enqueue()</code> 方法</p>
+
+<p>RealCall.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> enqueue(Callback <span style="color:#a6e22e">responseCallback</span>) {
+    <span style="color:#66d9ef">synchronized</span> (<span style="color:#66d9ef">this</span>) {
+      <span style="color:#66d9ef">if</span> (executed) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException(<span style="color:#e6db74">&#34;Already Executed&#34;</span>);
+      executed <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+    }
+    captureCallStackTrace();
+    eventListener.<span style="color:#a6e22e">callStart</span>(<span style="color:#66d9ef">this</span>);
+    client.<span style="color:#a6e22e">dispatcher</span>().<span style="color:#a6e22e">enqueue</span>(<span style="color:#66d9ef">new</span> AsyncCall(responseCallback));
+  }</code></pre></div>
+<ul>
+<li><code>executed</code> 通过标志位避免请求重复执行</li>
+<li>将 <code>responseCallback</code>(我们传入的回调) 封装成 <code>AsyncCall</code></li>
+<li><code>AsynCall</code> 继承于 <code>NamedRunnable</code> , <code>NamedRunnable</code> 实现了 <code>Runnable</code> 接口</li>
+<li>重点 <code>client.dispatcher().enqueue(new AsyncCall(responseCallback));</code></li>
+<li><code>dispatcher.enqueue()</code> 当<strong>异步执行队列</strong>的请求数未达到最大值且请求的 <code>host</code> 也未达到最大值时，将请求加入<strong>异步执行队列</strong>并开始执行。否则加入<strong>异步就绪队列</strong></li>
+</ul>
+
+<h2 id="三-asyncall-分析">三.<code>AsynCall</code> 分析</h2>
+
+<p><code>AsyncCall</code> 继承于 <code>NamedRunnable</code>，<code>NamedRunnable</code>实现了<code>Runnable</code>接口</p>
+
+<p>NamedRunnable.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>() {
+    String <span style="color:#a6e22e">oldName</span> <span style="color:#f92672">=</span> Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">getName</span>();
+    Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">setName</span>(name);
+    <span style="color:#66d9ef">try</span> {
+      execute();
+    } <span style="color:#66d9ef">finally</span> {
+      Thread.<span style="color:#a6e22e">currentThread</span>().<span style="color:#a6e22e">setName</span>(oldName);
+    }
+  }
+
+  <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">abstract</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">execute</span>();</code></pre></div>
+<ul>
+<li>这里除了设置线程的信息之外就是调用抽象方法，所以我们将重心移到 <code>execute()</code> 抽象方法的实现</li>
+<li>所以在 <code>dispatcher.enqueue()</code> 中的 <code>executorService().execute(call);</code> 就是执行该方法</li>
+</ul>
+
+<p>AsynCall.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">protected</span> <span style="color:#a6e22e">void</span> execute() {
+      <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">signalledCallback</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+      <span style="color:#66d9ef">try</span> {
+        Response <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> getResponseWithInterceptorChain();
+        <span style="color:#66d9ef">if</span> (retryAndFollowUpInterceptor.<span style="color:#a6e22e">isCanceled</span>()) {
+          signalledCallback <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+          responseCallback.<span style="color:#a6e22e">onFailure</span>(RealCall.<span style="color:#a6e22e">this</span>, <span style="color:#66d9ef">new</span> IOException(<span style="color:#e6db74">&#34;Canceled&#34;</span>));
+        } <span style="color:#66d9ef">else</span> {
+          signalledCallback <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+          responseCallback.<span style="color:#a6e22e">onResponse</span>(RealCall.<span style="color:#a6e22e">this</span>, response);
+        }
+      } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+        <span style="color:#66d9ef">if</span> (signalledCallback) {
+          <span style="color:#75715e">// Do not signal the callback twice!
+</span><span style="color:#75715e"></span>          Platform.<span style="color:#a6e22e">get</span>().<span style="color:#a6e22e">log</span>(INFO, <span style="color:#e6db74">&#34;Callback failure for &#34;</span> <span style="color:#f92672">+</span> toLoggableString(), e);
+        } <span style="color:#66d9ef">else</span> {
+          eventListener.<span style="color:#a6e22e">callFailed</span>(RealCall.<span style="color:#a6e22e">this</span>, e);
+          responseCallback.<span style="color:#a6e22e">onFailure</span>(RealCall.<span style="color:#a6e22e">this</span>, e);
+        }
+      } <span style="color:#66d9ef">finally</span> {
+        client.<span style="color:#a6e22e">dispatcher</span>().<span style="color:#a6e22e">finished</span>(<span style="color:#66d9ef">this</span>);
+      }
+    }</code></pre></div>
+<ul>
+<li><code>getResponseWithInterceptorChain();</code> 拦截器链下面重点分析，这个方法在 <strong>同步请求</strong> <code>call.execute()</code> 也出现了，这就是请求开始<strong>关键</strong>。</li>
+<li><code>responseCallback</code> 我们定义的回调</li>
+<li><code>retryAndFollowUpInterceptor</code> 重定向和重试拦截器如果取消的话就回调<code>responseCallback.onFailure()</code>方法，如果没有被取消则回调 <code>responseCallback.onResponse()</code> 方法。这里体现了 <code>onFailure</code>、<code>onResponse</code> 方法都是在子线程当中，如果我们需要再回调中对UI进行操作，需要切换线程</li>
+<li><code>catch</code> 对网络请求失败的操作，存在 <code>responseCallback.onFailure</code> 的回调</li>
+<li><code>finally</code>最后执行  <code>client.dispatcher().finished(this);</code> 将请求从<strong>异步执行队列</strong>移除，满足条件则将<strong>异步就绪队列</strong>的请求加入到<strong>异步执行队列</strong></li>
+</ul>
+
+<h2 id="四-拦截器分析">四、拦截器分析</h2>
+
+<p>到目前为止，同步、异步请求的基本流程和Dispatcher都有所了解了。接下来我们分析与拦截器。</p>
+
+<h3 id="1-官方文档">1.官方文档</h3>
+
+<p><strong>来源 <a href="https://github.com/square/okhttp/wiki/Interceptors">OkHttp_Wiki</a></strong></p>
+
+<blockquote>
+<p>Interceptors are a powerful mechanism that can monitor, rewrite, and retry calls.<br/>
+拦截器是 OkHttp 提供的对 Http 请求和响应进行统一处理的强大机制，它可以实现网络监听、请求以及响应重写、请求失败重试等功能。</p>
+
+<p>OkHttp uses lists to track interceptors, and interceptors are called in order.<br/>
+OkHttp 使用列表来跟踪拦截器，并按顺序调用拦截器。</p>
+
+<p>Interceptors are registered as either application or network interceptors.<br/>
+拦截器可以注册为应用拦截器或网络拦截器;</p>
+</blockquote>
+
+<p><img src="https://www.kitto.fun/media/post/okhttp_source_analysis/01.png" alt="拦截器01" /></p>
+
+<h4 id="应用拦截器与网络拦截器的区别"><strong>应用拦截器与网络拦截器的区别</strong></h4>
+
+<p><strong>应用拦截器:</strong></p>
+
+<blockquote>
+<p>Don&rsquo;t need to worry about intermediate responses like redirects and retries.<br/>
+应用拦截器不能操作中间的响应结果，比如重定向和重试</p>
+
+<p>Are always invoked once, even if the HTTP response is served from the cache.<br/>
+应用拦截器始终调用一次，即使Http响应是从缓存中提供的。</p>
+
+<p>Observe the application&rsquo;s original intent. Unconcerned with OkHttp-injected headers like If-None-Match.<br/>
+关注原始的intent,不关心注入的headers，比如If-None-Match。</p>
+
+<p>Permitted to short-circuit and not call Chain.proceed().<br/>
+应用拦截器允许短路，并且不调用 Chain.proceed()，即可以决定要调用的拦截器</p>
+
+<p>Permitted to retry and make multiple calls to Chain.proceed().<br/>
+应用拦截器允许请求失败重试，并多次调用其他拦截器</p>
+</blockquote>
+
+<p><strong>网络拦截器:</strong></p>
+
+<blockquote>
+<p>Able to operate on intermediate responses like redirects and retries.<br/>
+网络拦截器可以操作，如重定向和重试等中间操作的结果</p>
+
+<p>Not invoked for cached responses that short-circuit the network.<br/>
+网络拦截器不允许调用缓存来短路执行中的请求</p>
+
+<p>Observe the data just as it will be transmitted over the network.<br/>
+网络拦截器可以观察网络传输中的数据</p>
+
+<p>Access to the Connection that carries the request.<br/>
+网络拦截器可以获取 Connection 中携带的请求信息</p>
+</blockquote>
+
+<p>以上来自OkHttp官方文档</p>
+
+<h3 id="2-核心拦截器分析">2.核心拦截器分析</h3>
+
+<p>我们将注意力移到 <code>RealCall</code>  的 <code>getResponseWithInterceptorChain()</code>  方法</p>
+
+<p>RealCall.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Response <span style="color:#a6e22e">getResponseWithInterceptorChain</span>() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#75715e">// Build a full stack of interceptors.
+</span><span style="color:#75715e"></span>    List<span style="color:#f92672">&lt;</span>Interceptor<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">interceptors</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+    interceptors.<span style="color:#a6e22e">addAll</span>(client.<span style="color:#a6e22e">interceptors</span>());
+    interceptors.<span style="color:#a6e22e">add</span>(retryAndFollowUpInterceptor);
+    interceptors.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> BridgeInterceptor(client.<span style="color:#a6e22e">cookieJar</span>()));
+    interceptors.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> CacheInterceptor(client.<span style="color:#a6e22e">internalCache</span>()));
+    interceptors.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> ConnectInterceptor(client));
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>forWebSocket) {
+      interceptors.<span style="color:#a6e22e">addAll</span>(client.<span style="color:#a6e22e">networkInterceptors</span>());
+    }
+    interceptors.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> CallServerInterceptor(forWebSocket));
+    
+    Interceptor.<span style="color:#a6e22e">Chain</span> <span style="color:#a6e22e">chain</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealInterceptorChain(interceptors, <span style="color:#66d9ef">null</span>, <span style="color:#66d9ef">null</span>, <span style="color:#66d9ef">null</span>, 0,
+        originalRequest, <span style="color:#66d9ef">this</span>, eventListener, client.<span style="color:#a6e22e">connectTimeoutMillis</span>(),
+        client.<span style="color:#a6e22e">readTimeoutMillis</span>(), client.<span style="color:#a6e22e">writeTimeoutMillis</span>());
+    
+    <span style="color:#66d9ef">return</span> chain.<span style="color:#a6e22e">proceed</span>(originalRequest);
+}</code></pre></div>
+<ul>
+<li><code>interceptors.addAll(client.interceptors());</code> 添加了用户自定义的应用拦截器</li>
+<li><code>RetryAndFollowUpInterceptor</code> 重试和失败重定向拦截器</li>
+<li><code>BridgeInterceptor</code> 补充用户在请求当中缺少的 <code>Http</code>请求头和把返回的响应转化为用户可用的 <code>Response</code></li>
+<li><code>CacheInterceptor</code> 处理缓存</li>
+<li><code>ConnectInterceptor</code> 建立与服务器可用的连接</li>
+<li><code>interceptors.addAll(client.networkInterceptors());</code> 添加用户自定义的网络拦截器</li>
+<li><code>CallServerInterceptor</code> 将 <code>Http</code> 请求写入网络的IO流当中，并从网络IO流中读取服务端返回的数据</li>
+<li>最后创建 <code>RealInterceptorChain</code> 对象，并将拦截器 <code>list</code>传入</li>
+<li><code>RealInterceptorChain</code> 调用 <code>proceed</code> 方法执行 <code>originalRequest</code> 请求并返回 <code>Response</code></li>
+</ul>
+
+<p>RealInterceptorChain.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> proceed(Request <span style="color:#a6e22e">request</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#66d9ef">return</span> proceed(request, streamAllocation, httpCodec, connection);
+}
+  
+  
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> proceed(Request <span style="color:#a6e22e">request</span>, StreamAllocation <span style="color:#a6e22e">streamAllocation</span>, HttpCodec <span style="color:#a6e22e">httpCodec</span>,
+      RealConnection <span style="color:#a6e22e">connection</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#66d9ef">if</span> (index <span style="color:#f92672">&gt;=</span> interceptors.<span style="color:#a6e22e">size</span>()) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> AssertionError();
+    calls<span style="color:#f92672">++</span>;
+    ...
+    <span style="color:#75715e">// Call the next interceptor in the chain.
+</span><span style="color:#75715e"></span>    RealInterceptorChain <span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RealInterceptorChain(interceptors, streamAllocation, httpCodec,
+        connection, index <span style="color:#f92672">+</span> 1, request, call, eventListener, connectTimeout, readTimeout,
+        writeTimeout);
+    Interceptor <span style="color:#a6e22e">interceptor</span> <span style="color:#f92672">=</span> interceptors.<span style="color:#a6e22e">get</span>(index);
+    Response <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> interceptor.<span style="color:#a6e22e">intercept</span>(next);
+    ...
+    <span style="color:#66d9ef">return</span> response;
+  }</code></pre></div>
+<ul>
+<li>代码通过 <code>index</code> 来记录执行到拦截器链的位置，<code>interceptors.get(index);</code> 得到当前拦截器对象</li>
+<li>再次实例化 <code>RealInterceptorChain</code> 并且传入<code>index+1</code>表示从下一个拦截器开始进行访问,这样就把我们的拦截器<code>list</code>构成了一个有序的链条 <strong>(拦截器链)</strong></li>
+<li><code>interceptor.intercept(next);</code> 返回 <code>Response</code> 对象</li>
+<li>可以看出 <code>proceed()</code> 方法的核心就在于创建下一个拦截器链 <code>RealInterceptorChain</code> 对象,依次调用<code>Interceptor</code> 的 <code>intercept()</code> 方法，并返回给上一个拦截器 <code>Response</code> 对象，可以看成是一个递归的过程，如下图所示。</li>
+</ul>
+
+<p><img src="https://www.kitto.fun/media/post/okhttp_source_analysis/02.png" alt="拦截器01" /></p>
+
+<p>重点就落在了每个拦截器的 <code>intercept()</code> 方法上,接下来我们分析系统给我们5个拦截器，忽略用户自定义的拦截器</p>
+
+<h4 id="2-1-retryandfollowupinterceptor">2.1. RetryAndFollowUpInterceptor</h4>
+
+<p>RetryAndFollowUpInterceptor.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span> 
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> intercept(Chain <span style="color:#a6e22e">chain</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    ...
+    StreamAllocation <span style="color:#a6e22e">streamAllocation</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StreamAllocation(client.<span style="color:#a6e22e">connectionPool</span>(),
+        createAddress(request.<span style="color:#a6e22e">url</span>()), call, eventListener, callStackTrace);
+    
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">followUpCount</span> <span style="color:#f92672">=</span> 0;
+    Response <span style="color:#a6e22e">priorResponse</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
+      ...
+      Response <span style="color:#a6e22e">response</span>;
+      <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">releaseConnection</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+      <span style="color:#66d9ef">try</span> {
+        response <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">proceed</span>(request, streamAllocation, <span style="color:#66d9ef">null</span>, <span style="color:#66d9ef">null</span>);
+        releaseConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+      } <span style="color:#66d9ef">catch</span> (RouteException <span style="color:#a6e22e">e</span>) {
+          <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>recover(e.<span style="color:#a6e22e">getLastConnectException</span>(), streamAllocation, <span style="color:#66d9ef">false</span>, request)) {
+          <span style="color:#66d9ef">throw</span> e.<span style="color:#a6e22e">getFirstConnectException</span>();
+        }
+        releaseConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+        <span style="color:#66d9ef">continue</span>;
+      } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+         <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">requestSendStarted</span> <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>(e <span style="color:#a6e22e">instanceof</span> ConnectionShutdownException);
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>recover(e, streamAllocation, requestSendStarted, request)) <span style="color:#66d9ef">throw</span> e;
+        releaseConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+        <span style="color:#66d9ef">continue</span>;
+      } <span style="color:#66d9ef">finally</span> {
+            <span style="color:#66d9ef">if</span> (releaseConnection) {
+          streamAllocation.<span style="color:#a6e22e">streamFailed</span>(<span style="color:#66d9ef">null</span>);
+          streamAllocation.<span style="color:#a6e22e">release</span>();
+        }
+      }
+      ...
+      Request <span style="color:#a6e22e">followUp</span>;
+      <span style="color:#66d9ef">try</span> {
+        followUp <span style="color:#f92672">=</span> followUpRequest(response, streamAllocation.<span style="color:#a6e22e">route</span>());
+      } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+        streamAllocation.<span style="color:#a6e22e">release</span>();
+        <span style="color:#66d9ef">throw</span> e;
+      }
+    
+      <span style="color:#66d9ef">if</span> (followUp <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>forWebSocket) {
+          streamAllocation.<span style="color:#a6e22e">release</span>();
+        }
+        <span style="color:#66d9ef">return</span> response;
+      }
+    
+      closeQuietly(response.<span style="color:#a6e22e">body</span>());
+    
+      <span style="color:#66d9ef">if</span> (<span style="color:#f92672">++</span>followUpCount <span style="color:#f92672">&gt;</span> MAX_FOLLOW_UPS) {
+        streamAllocation.<span style="color:#a6e22e">release</span>();
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ProtocolException(<span style="color:#e6db74">&#34;Too many follow-up requests: &#34;</span> <span style="color:#f92672">+</span> followUpCount);
+      }
+      ...
+      request <span style="color:#f92672">=</span> followUp;
+      priorResponse <span style="color:#f92672">=</span> response;
+    }
+}</code></pre></div>
+<ul>
+<li>创建 <code>StreamAllocation</code>对象，用来建立执行 <code>Http</code> 请求的 <code>Socket</code> 连接对象(之后再深入分析)</li>
+<li>调用 <code>RealInterceptorChain.proceed()</code> 进行网络请求</li>
+<li>根据异常结果或响应结果判断是否要进行重新请求</li>
+<li>当后续的拦截器发生 <code>RouteException</code> 或者 <code>IOException</code> 时，判断连接是否可恢复，如果不可重试会再将异常抛出，并释放 <code>streamAllocation</code> 资源；如果可以重试，则继续调用 <code>RealInterceptorChain.proceed()</code> 进行网络请求。</li>
+<li>通过 <code>if (++followUpCount &gt; MAX_FOLLOW_UPS)</code> 来防止陷入死循环</li>
+<li>对 <code>response</code> 进行处理，通过 <code>followUpRequest()</code> 方法判断是否需要重定向。如果需要重定向的话，从头部的 <code>Location</code> 中获取新的 <code>url</code> 生成新的 <code>request</code> 进行新的请求。无需重定向等操作，则将 <code>response</code> 返回上一级拦截器</li>
+</ul>
+
+<h4 id="2-2-bridgeinterceptor">2.2. BridgeInterceptor</h4>
+
+<p>BridgeInterceptor.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Override</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> intercept(Chain <span style="color:#a6e22e">chain</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    Request <span style="color:#a6e22e">userRequest</span> <span style="color:#f92672">=</span> chain.<span style="color:#a6e22e">request</span>();
+    Request.<span style="color:#a6e22e">Builder</span> <span style="color:#a6e22e">requestBuilder</span> <span style="color:#f92672">=</span> userRequest.<span style="color:#a6e22e">newBuilder</span>();
+    
+    RequestBody <span style="color:#a6e22e">body</span> <span style="color:#f92672">=</span> userRequest.<span style="color:#a6e22e">body</span>();
+    <span style="color:#75715e">//主要是对请求头添加字段，省略
+</span><span style="color:#75715e"></span>    ...
+    
+    Response <span style="color:#a6e22e">networkResponse</span> <span style="color:#f92672">=</span> chain.<span style="color:#a6e22e">proceed</span>(requestBuilder.<span style="color:#a6e22e">build</span>());
+    
+    HttpHeaders.<span style="color:#a6e22e">receiveHeaders</span>(cookieJar, userRequest.<span style="color:#a6e22e">url</span>(), networkResponse.<span style="color:#a6e22e">headers</span>());
+    
+    Response.<span style="color:#a6e22e">Builder</span> <span style="color:#a6e22e">responseBuilder</span> <span style="color:#f92672">=</span> networkResponse.<span style="color:#a6e22e">newBuilder</span>()
+        .<span style="color:#a6e22e">request</span>(userRequest);
+    
+    <span style="color:#66d9ef">if</span> (transparentGzip
+        <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;gzip&#34;</span>.<span style="color:#a6e22e">equalsIgnoreCase</span>(networkResponse.<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;Content-Encoding&#34;</span>))
+        <span style="color:#f92672">&amp;&amp;</span> HttpHeaders.<span style="color:#a6e22e">hasBody</span>(networkResponse)) {
+      GzipSource <span style="color:#a6e22e">responseBody</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GzipSource(networkResponse.<span style="color:#a6e22e">body</span>().<span style="color:#a6e22e">source</span>());
+      Headers <span style="color:#a6e22e">strippedHeaders</span> <span style="color:#f92672">=</span> networkResponse.<span style="color:#a6e22e">headers</span>().<span style="color:#a6e22e">newBuilder</span>()
+          .<span style="color:#a6e22e">removeAll</span>(<span style="color:#e6db74">&#34;Content-Encoding&#34;</span>)
+          .<span style="color:#a6e22e">removeAll</span>(<span style="color:#e6db74">&#34;Content-Length&#34;</span>)
+          .<span style="color:#a6e22e">build</span>();
+      responseBuilder.<span style="color:#a6e22e">headers</span>(strippedHeaders);
+      String <span style="color:#a6e22e">contentType</span> <span style="color:#f92672">=</span> networkResponse.<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;Content-Type&#34;</span>);
+      responseBuilder.<span style="color:#a6e22e">body</span>(<span style="color:#66d9ef">new</span> RealResponseBody(contentType, <span style="color:#f92672">-</span>1L, Okio.<span style="color:#a6e22e">buffer</span>(responseBody)));
+    }
+    
+    <span style="color:#66d9ef">return</span> responseBuilder.<span style="color:#a6e22e">build</span>();
+}</code></pre></div>
+<ul>
+<li>将传入的 <code>Request</code> 的请求头添加字段，转化为能够进行网络访问的请求</li>
+<li>将这个符合网络请求的 <code>Request</code> 使用 <code>chain.proceed(requestBuilder.build());</code> 方法传入下一个拦截器</li>
+<li>将网络请求回来的响应 <code>Response</code> 转化为用户可用的 <code>Response</code> (<strong>gzip</strong>解压操作等)</li>
+</ul>
+
+<h4 id="2-3-cacheinterceptor">2.3. CacheInterceptor</h4>
+
+<p>在看 <code>CacheInterceptor</code> 之前我们要先看一下<strong>Cache.java</strong></p>
+
+<p>示例:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   OkHttpClient <span style="color:#a6e22e">okHttpClient</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OkHttpClient().<span style="color:#a6e22e">newBuilder</span>()
+                .<span style="color:#a6e22e">cache</span>(<span style="color:#66d9ef">new</span> Cache(<span style="color:#66d9ef">new</span> File(<span style="color:#e6db74">&#34;cache&#34;</span>), 8 <span style="color:#f92672">*</span> 1024 <span style="color:#f92672">*</span> 1024))
+                .<span style="color:#a6e22e">build</span>();</code></pre></div>
+<h5 id="2-3-1-cache-put-方法">2.3.1<code>Cache.put()</code>方法</h5>
+
+<p>Cache.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Nullable</span>
+CacheRequest <span style="color:#a6e22e">put</span>(Response <span style="color:#a6e22e">response</span>) {
+    String <span style="color:#a6e22e">requestMethod</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">method</span>();
+    <span style="color:#66d9ef">if</span> (HttpMethod.<span style="color:#a6e22e">invalidatesCache</span>(response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">method</span>())) {
+      <span style="color:#66d9ef">try</span> {
+        remove(response.<span style="color:#a6e22e">request</span>());
+      } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">ignored</span>) {
+      }
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>requestMethod.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;GET&#34;</span>)) {
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    ...
+    Entry <span style="color:#a6e22e">entry</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Entry(response);
+    DiskLruCache.<span style="color:#a6e22e">Editor</span> <span style="color:#a6e22e">editor</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#66d9ef">try</span> {
+      editor <span style="color:#f92672">=</span> cache.<span style="color:#a6e22e">edit</span>(key(response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">url</span>()));
+      <span style="color:#66d9ef">if</span> (editor <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+      }
+      entry.<span style="color:#a6e22e">writeTo</span>(editor);
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> CacheRequestImpl(editor);
+    } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+      abortQuietly(editor);
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    
+    Entry(Response <span style="color:#a6e22e">response</span>) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">url</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">url</span>().<span style="color:#a6e22e">toString</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">varyHeaders</span> <span style="color:#f92672">=</span> HttpHeaders.<span style="color:#a6e22e">varyHeaders</span>(response);
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">requestMethod</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">method</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">protocol</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">protocol</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">code</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">code</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">message</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">message</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">responseHeaders</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">headers</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">handshake</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">handshake</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">sentRequestMillis</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">sentRequestAtMillis</span>();
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">receivedResponseMillis</span> <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">receivedResponseAtMillis</span>();
+    }
+}</code></pre></div>
+<p>HttpMethod.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">invalidatesCache</span>(String <span style="color:#a6e22e">method</span>) {
+    <span style="color:#66d9ef">return</span> method.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;POST&#34;</span>)
+        <span style="color:#f92672">||</span> method.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;PATCH&#34;</span>)
+        <span style="color:#f92672">||</span> method.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;PUT&#34;</span>)
+        <span style="color:#f92672">||</span> method.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;DELETE&#34;</span>)
+        <span style="color:#f92672">||</span> method.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;MOVE&#34;</span>);     <span style="color:#75715e">// WebDAV
+</span><span style="color:#75715e"></span>  }</code></pre></div>
+<ul>
+<li>通过 <code>response.request().method()</code> 方法获取 <code>requestMethod</code> 如果是<strong>非</strong>&ldquo;GET&rdquo;方法，则对缓存进行删除操作，并且返回 <code>null</code>，不进行缓存</li>
+<li><code>Entry</code> 实例就是要写入缓存部分,当中保存了<code>url</code>,<code>headers</code>,<code>code</code>,<code>message</code> 等信息</li>
+<li><code>DiskLruCache</code> 是 <code>OkHttp</code> 缓存的核心，<code>key</code> 通过 <code>url</code> <strong>md5</strong> 加密后得到的16进制形式,<code>value</code>是包装好的<code>Entry</code></li>
+<li>到目前为止我们还尚未看到响应的 <code>body</code> 缓存在何处？</li>
+<li><code>return new CacheRequestImpl(editor);</code> 在返回时，实例化了 <code>CacheRequestImpl</code> 对象，所以我们需要看看这个类做了什么。</li>
+</ul>
+
+<p>Cache.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">   CacheRequestImpl(<span style="color:#66d9ef">final</span> <span style="color:#a6e22e">DiskLruCache</span>.<span style="color:#a6e22e">Editor</span> editor) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">editor</span> <span style="color:#f92672">=</span> editor;
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">cacheOut</span> <span style="color:#f92672">=</span> editor.<span style="color:#a6e22e">newSink</span>(ENTRY_BODY);
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">body</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ForwardingSink(cacheOut) {
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> close() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+          <span style="color:#66d9ef">synchronized</span> (Cache.<span style="color:#a6e22e">this</span>) {
+            <span style="color:#66d9ef">if</span> (done) {
+              <span style="color:#66d9ef">return</span>;
+            }
+            done <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+            writeSuccessCount<span style="color:#f92672">++</span>;
+          }
+          <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">close</span>();
+          editor.<span style="color:#a6e22e">commit</span>();
+        }
+      };
+    }</code></pre></div>
+<ul>
+<li>从上面的代码中我们看到了重点的 <code>body</code> 而且使用了书写 <code>Entry</code> 对象的 <code>DiskLruCache.Editor</code> 用来书写 <code>body</code></li>
+</ul>
+
+<h5 id="2-3-2-cache-get-方法">2.3.2<code>Cache.get()</code> 方法</h5>
+
+<p>Cache.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#a6e22e">@Nullable</span>
+Response <span style="color:#a6e22e">get</span>(Request <span style="color:#a6e22e">request</span>) {
+    String <span style="color:#a6e22e">key</span> <span style="color:#f92672">=</span> key(request.<span style="color:#a6e22e">url</span>());
+    DiskLruCache.<span style="color:#a6e22e">Snapshot</span> <span style="color:#a6e22e">snapshot</span>;
+    Entry <span style="color:#a6e22e">entry</span>;
+    <span style="color:#66d9ef">try</span> {
+      snapshot <span style="color:#f92672">=</span> cache.<span style="color:#a6e22e">get</span>(key);
+      <span style="color:#66d9ef">if</span> (snapshot <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+      }
+    } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+      <span style="color:#75715e">// Give up because the cache cannot be read.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    <span style="color:#66d9ef">try</span> {
+      entry <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Entry(snapshot.<span style="color:#a6e22e">getSource</span>(ENTRY_METADATA));
+    } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+      Util.<span style="color:#a6e22e">closeQuietly</span>(snapshot);
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    
+    Response <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> entry.<span style="color:#a6e22e">response</span>(snapshot);
+    
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>entry.<span style="color:#a6e22e">matches</span>(request, response)) {
+      Util.<span style="color:#a6e22e">closeQuietly</span>(response.<span style="color:#a6e22e">body</span>());
+      <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+    }
+    
+    <span style="color:#66d9ef">return</span> response;
+}
+
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> response(DiskLruCache.<span style="color:#a6e22e">Snapshot</span> <span style="color:#a6e22e">snapshot</span>) {
+    String <span style="color:#a6e22e">contentType</span> <span style="color:#f92672">=</span> responseHeaders.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;Content-Type&#34;</span>);
+    String <span style="color:#a6e22e">contentLength</span> <span style="color:#f92672">=</span> responseHeaders.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;Content-Length&#34;</span>);
+    Request <span style="color:#a6e22e">cacheRequest</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Request.<span style="color:#a6e22e">Builder</span>()
+      .<span style="color:#a6e22e">url</span>(url)
+      .<span style="color:#a6e22e">method</span>(requestMethod, <span style="color:#66d9ef">null</span>)
+      .<span style="color:#a6e22e">headers</span>(varyHeaders)
+      .<span style="color:#a6e22e">build</span>();
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Response.<span style="color:#a6e22e">Builder</span>()
+      .<span style="color:#a6e22e">request</span>(cacheRequest)
+      .<span style="color:#a6e22e">protocol</span>(protocol)
+      .<span style="color:#a6e22e">code</span>(code)
+      .<span style="color:#a6e22e">message</span>(message)
+      .<span style="color:#a6e22e">headers</span>(responseHeaders)
+      .<span style="color:#a6e22e">body</span>(<span style="color:#66d9ef">new</span> CacheResponseBody(snapshot, contentType, contentLength))
+      .<span style="color:#a6e22e">handshake</span>(handshake)
+      .<span style="color:#a6e22e">sentRequestAtMillis</span>(sentRequestMillis)
+      .<span style="color:#a6e22e">receivedResponseAtMillis</span>(receivedResponseMillis)
+      .<span style="color:#a6e22e">build</span>();
+}
+
+CacheResponseBody(<span style="color:#66d9ef">final</span> <span style="color:#a6e22e">DiskLruCache</span>.<span style="color:#a6e22e">Snapshot</span> snapshot,
+    String <span style="color:#a6e22e">contentType</span>, String <span style="color:#a6e22e">contentLength</span>) {
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">snapshot</span> <span style="color:#f92672">=</span> snapshot;
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">contentType</span> <span style="color:#f92672">=</span> contentType;
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">contentLength</span> <span style="color:#f92672">=</span> contentLength;
+
+  Source <span style="color:#a6e22e">source</span> <span style="color:#f92672">=</span> snapshot.<span style="color:#a6e22e">getSource</span>(ENTRY_BODY);
+  bodySource <span style="color:#f92672">=</span> Okio.<span style="color:#a6e22e">buffer</span>(<span style="color:#66d9ef">new</span> ForwardingSource(source) {
+    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> close() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+      snapshot.<span style="color:#a6e22e">close</span>();
+      <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">close</span>();
+    }
+  });
+}</code></pre></div>
+<ul>
+<li><code>key</code> 通过 <code>url</code> <strong>md5</strong> 加密后的16进制形式得到</li>
+<li><code>DiskLruCache.Snapshot</code> 用来记录了缓存在某个特定时刻所包含的内容 (缓存的快照)</li>
+<li><code>cache.get(key)</code> 通过 <code>key</code> 得到快照，如果为空，说明没有缓存则返回 <code>null</code></li>
+<li>得到 <code>Snapshot</code> 之后，就可以根据它来创建出 <code>Entry</code> 对象</li>
+<li><code>entry.response(snapshot);</code> 从中得到 <code>response</code> 对象</li>
+<li>用 <code>request</code> 和 <code>response</code> 进行成对匹配操作，匹配则返回 <code>response</code> 对象</li>
+</ul>
+
+<h4 id="2-4-connectinterceptor">2.4. ConnectInterceptor</h4>
+
+<p>ConnectInterceptor.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConnectInterceptor</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">Interceptor</span> {
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> OkHttpClient <span style="color:#a6e22e">client</span>;
+    
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ConnectInterceptor</span>(OkHttpClient <span style="color:#a6e22e">client</span>) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">client</span> <span style="color:#f92672">=</span> client;
+    }
+    
+    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> intercept(Chain <span style="color:#a6e22e">chain</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+        RealInterceptorChain <span style="color:#a6e22e">realChain</span> <span style="color:#f92672">=</span> (RealInterceptorChain) chain;
+        Request <span style="color:#a6e22e">request</span> <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">request</span>();
+        StreamAllocation <span style="color:#a6e22e">streamAllocation</span> <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">streamAllocation</span>();
+        
+        <span style="color:#75715e">// We need the network to satisfy this request. Possibly for validating a conditional GET.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">doExtensiveHealthChecks</span> <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>request.<span style="color:#a6e22e">method</span>().<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;GET&#34;</span>);
+        HttpCodec <span style="color:#a6e22e">httpCodec</span> <span style="color:#f92672">=</span> streamAllocation.<span style="color:#a6e22e">newStream</span>(client, chain, doExtensiveHealthChecks);
+        RealConnection <span style="color:#a6e22e">connection</span> <span style="color:#f92672">=</span> streamAllocation.<span style="color:#a6e22e">connection</span>();
+        
+        <span style="color:#66d9ef">return</span> realChain.<span style="color:#a6e22e">proceed</span>(request, streamAllocation, httpCodec, connection);
+    }
+}</code></pre></div>
+<ul>
+<li><code>ConnectInterceptor</code> 打开与服务器的连接，开始 <code>OkHttp</code> 的网络请求</li>
+<li>核心 <code>streamAllocation</code>,我们在 <code>RetryAndFollowUpInterceptor</code> 中进行了初始化，但是并没有使用。</li>
+<li>通过 <code>streamAllocation</code> 的 <code>newStream()</code> 方法创建了 <code>HttpCodec</code> 对象</li>
+<li><code>HttpCodec</code> 用来编码 <code>Request</code> 和解码 <code>Response</code> (<code>OkHttp</code> 封装好的对象)</li>
+<li><code>RealConnection</code> 顾名思义是用来实际的网络IO连接传输的</li>
+<li>以上，将创建好的用于网络IO 的 <code>RealConnection</code> 对象，以及对于与服务器交互最为关键的 <code>HttpCodec</code> 等对象传递给后面的拦截器</li>
+</ul>
+
+<p>所以我们要将目光放在最为重要的 <code>streamAllocation</code> 对象</p>
+
+<p>StreamAllocation.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">HttpCodec</span> newStream(
+  OkHttpClient <span style="color:#a6e22e">client</span>, Interceptor.<span style="color:#a6e22e">Chain</span> <span style="color:#a6e22e">chain</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">doExtensiveHealthChecks</span>) {
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">connectTimeout</span> <span style="color:#f92672">=</span> chain.<span style="color:#a6e22e">connectTimeoutMillis</span>();
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">readTimeout</span> <span style="color:#f92672">=</span> chain.<span style="color:#a6e22e">readTimeoutMillis</span>();
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">writeTimeout</span> <span style="color:#f92672">=</span> chain.<span style="color:#a6e22e">writeTimeoutMillis</span>();
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pingIntervalMillis</span> <span style="color:#f92672">=</span> client.<span style="color:#a6e22e">pingIntervalMillis</span>();
+    <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">connectionRetryEnabled</span> <span style="color:#f92672">=</span> client.<span style="color:#a6e22e">retryOnConnectionFailure</span>();
+    
+    <span style="color:#66d9ef">try</span> {
+      RealConnection <span style="color:#a6e22e">resultConnection</span> <span style="color:#f92672">=</span> findHealthyConnection(connectTimeout, readTimeout,
+          writeTimeout, pingIntervalMillis, connectionRetryEnabled, doExtensiveHealthChecks);
+      HttpCodec <span style="color:#a6e22e">resultCodec</span> <span style="color:#f92672">=</span> resultConnection.<span style="color:#a6e22e">newCodec</span>(client, chain, <span style="color:#66d9ef">this</span>);
+    
+      <span style="color:#66d9ef">synchronized</span> (connectionPool) {
+        codec <span style="color:#f92672">=</span> resultCodec;
+        <span style="color:#66d9ef">return</span> resultCodec;
+      }
+    } <span style="color:#66d9ef">catch</span> (IOException <span style="color:#a6e22e">e</span>) {
+      <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RouteException(e);
+    }
+}
+
+<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">RealConnection</span> findHealthyConnection(<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">connectTimeout</span>, <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">readTimeout</span>,
+  <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">writeTimeout</span>, <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pingIntervalMillis</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">connectionRetryEnabled</span>,
+  <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">doExtensiveHealthChecks</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
+      RealConnection <span style="color:#a6e22e">candidate</span> <span style="color:#f92672">=</span> findConnection(connectTimeout, readTimeout, writeTimeout,
+          pingIntervalMillis, connectionRetryEnabled);
+    
+      <span style="color:#75715e">// If this is a brand new connection, we can skip the extensive health checks.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">synchronized</span> (connectionPool) {
+        <span style="color:#66d9ef">if</span> (candidate.<span style="color:#a6e22e">successCount</span> <span style="color:#f92672">==</span> 0) {
+          <span style="color:#66d9ef">return</span> candidate;
+        }
+      }
+    
+      <span style="color:#75715e">// Do a (potentially slow) check to confirm that the pooled connection is still good. If it
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// isn&#39;t, take it out of the pool and start again.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>candidate.<span style="color:#a6e22e">isHealthy</span>(doExtensiveHealthChecks)) {
+        noNewStreams();
+        <span style="color:#66d9ef">continue</span>;
+      }
+    
+      <span style="color:#66d9ef">return</span> candidate;
+    }
+}</code></pre></div>
+<ul>
+<li>通过 <code>findHealthyConnection</code> 方法获取 <code>RealConnection</code> 对象</li>
+<li>在 <code>findHealthyConnection</code> 方法中用了 <code>while</code> 循环调用 <code>findConnection</code> 方法</li>
+<li>在同步代码块中，<code>candidate.successCount</code> 为 <strong>0</strong> 的时候，意味着整个网络连接结束了(即一个新的连接，可以跳过健康检查)，可以跳出循环</li>
+<li><code>candidate.successCount</code> 不为 <strong>0</strong> 的时候， 则判断连接是否健康，如果为不健康的状态，调用  <code>noNewStreams()</code> 方法销毁资源，并继续循环</li>
+<li>得到 <code>RealConnection</code> 对象后就能创建 <code>HttpCodec</code> 对象</li>
+</ul>
+
+<blockquote>
+<p>那什么是不健康的 RealConnection?<br>
+1.Socket连接未关闭;<br>2.Socket输入输出流未关闭;<br>3.Http2Connection未关闭等等</p>
+</blockquote>
+
+<p>为了理解 <code>RealConnection</code> 对象的创建过程，进一步分析 <code>findConnection</code> 方法</p>
+
+<p>StreamAllocation.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/**
+</span><span style="color:#75715e">* Returns a connection to host a new stream. This prefers the existing connection if it exists,
+</span><span style="color:#75715e">* then the pool, finally building a new connection.
+</span><span style="color:#75715e">*/</span>
+<span style="color:#66d9ef">private</span> <span style="color:#a6e22e">RealConnection</span> findConnection(<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">connectTimeout</span>, <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">readTimeout</span>, <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">writeTimeout</span>,
+  <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pingIntervalMillis</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">connectionRetryEnabled</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    ...
+    <span style="color:#66d9ef">synchronized</span> (connectionPool) {
+      ...
+      <span style="color:#75715e">// Attempt to use an already-allocated connection. We need to be careful here because our
+</span><span style="color:#75715e"></span>      <span style="color:#75715e">// already-allocated connection may have been restricted from creating new streams.
+</span><span style="color:#75715e"></span>      releasedConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">connection</span>;
+      <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">connection</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#75715e">// We had an already-allocated connection and it&#39;s good.
+</span><span style="color:#75715e"></span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">connection</span>;
+        releasedConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+      }
+      ...
+    
+      <span style="color:#66d9ef">if</span> (result <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#75715e">// Attempt to get a connection from the pool.
+</span><span style="color:#75715e"></span>        Internal.<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">acquire</span>(connectionPool, address, <span style="color:#66d9ef">this</span>, <span style="color:#66d9ef">null</span>);
+        <span style="color:#66d9ef">if</span> (connection <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+          foundPooledConnection <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+          result <span style="color:#f92672">=</span> connection;
+        } <span style="color:#66d9ef">else</span> {
+          selectedRoute <span style="color:#f92672">=</span> route;
+        }
+      }
+    }
+    ...
+
+    <span style="color:#66d9ef">if</span> (result <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+      <span style="color:#75715e">// If we found an already-allocated or pooled connection, we&#39;re done.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">return</span> result;
+    }
+    
+    ...
+    <span style="color:#75715e">// Do TCP + TLS handshakes. This is a blocking operation.
+</span><span style="color:#75715e"></span>    result.<span style="color:#a6e22e">connect</span>(connectTimeout, readTimeout, writeTimeout, pingIntervalMillis,
+        connectionRetryEnabled, call, eventListener);
+    ...
+    <span style="color:#66d9ef">synchronized</span> (connectionPool) {
+      reportedAcquired <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+    
+      <span style="color:#75715e">// Pool the connection.
+</span><span style="color:#75715e"></span>      Internal.<span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">put</span>(connectionPool, result);
+      ...
+    }
+    ...
+    <span style="color:#66d9ef">return</span> result;
+}</code></pre></div>
+<ul>
+<li><code>releasedConnection = this.connection;</code> 从注释中可以看出，目的是为了尝试复用当前连接</li>
+<li><code>if (result == null)</code> 表示如果不能复用当前连接，从<code>连接池(下面进行分析)</code> 中获取一个 <code>RealConnection</code></li>
+<li><code>if (connection != null)</code> 连接池中是否有此连接，有则结束 <code>findConnection()</code> 方法，否则开始新建连接</li>
+<li>新建连接时，调用 <code>result.connect()</code> 方法进行实际的网络连接，连接成功后将新的 <code>RealConnection</code> 放入连接池中</li>
+<li><code>result.connect()</code> 里进行了 <code>Http</code> 协议连接方式的选择: <strong>隧道连接</strong> 和 <strong>Socket连接</strong> (能力有限暂未深入分析)</li>
+</ul>
+
+<h5 id="2-4-1-connectionpool-连接池分析">2.4.1<code>ConnectionPool</code>连接池分析</h5>
+
+<blockquote>
+<p>OkHttp将客户端与服务端的连接抽象成了Connection的一个类。而RealConnection就是Connection的实现类。为了在<strong>一定时间范围内</strong>更好地管理Connection类以及连接复用，OkHttp提供了ConnectionPool连接池。</p>
+</blockquote>
+
+<h5 id="2-4-2-connectionpool-acquire-get-方法分析">2.4.2<code>ConnectionPool.acquire/get</code>方法分析</h5>
+
+<p>ConnectionPool.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">acquire</span>(Address <span style="color:#a6e22e">address</span>, StreamAllocation <span style="color:#a6e22e">streamAllocation</span>, <span style="color:#a6e22e">@Nullable</span> Route <span style="color:#a6e22e">route</span>) {
+    <span style="color:#66d9ef">assert</span> (Thread.<span style="color:#a6e22e">holdsLock</span>(<span style="color:#66d9ef">this</span>));
+    <span style="color:#66d9ef">for</span> (RealConnection <span style="color:#a6e22e">connection</span> <span style="color:#f92672">:</span> connections) {
+      <span style="color:#66d9ef">if</span> (connection.<span style="color:#a6e22e">isEligible</span>(address, route)) {
+        streamAllocation.<span style="color:#a6e22e">acquire</span>(connection, <span style="color:#66d9ef">true</span>);
+        <span style="color:#66d9ef">return</span>;
+      }
+    }
+  }</code></pre></div>
+<p>StreamAllocation.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> acquire(RealConnection <span style="color:#a6e22e">connection</span>, <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">reportedAcquired</span>) {
+    <span style="color:#66d9ef">assert</span> (Thread.<span style="color:#a6e22e">holdsLock</span>(connectionPool));
+    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">connection</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalStateException();
+    
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">connection</span> <span style="color:#f92672">=</span> connection;
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">reportedAcquired</span> <span style="color:#f92672">=</span> reportedAcquired;
+    connection.<span style="color:#a6e22e">allocations</span>.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> StreamAllocationReference(<span style="color:#66d9ef">this</span>, callStackTrace));
+}</code></pre></div>
+<p>RealConnection.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#75715e">/** Current streams carried by this connection. */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> List<span style="color:#f92672">&lt;</span>Reference<span style="color:#f92672">&lt;</span>StreamAllocation<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">allocations</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();</code></pre></div>
+<ul>
+<li><code>ConnectionPool.acquire()</code> 方法中，使用 <code>for</code> 循环遍历找到可用的连接 <em>(address, route)</em></li>
+<li>将可用的 <code>connection</code> 传入 <code>StreamAllocation.acquire()</code> 方法</li>
+<li><code>StreamAllocation</code> 中，先将 <code>ConnectionPool</code> 的 <code>connection</code> 赋值给 <code>StreamAllocation</code> 的成员变量</li>
+<li><code>connection.allocations.add(new StreamAllocationReference(this, callStackTrace));</code> 将 <code>StreamAllocation</code> 的弱引用加入到 <code>RealConnection.allocations</code> 中去</li>
+<li><code>RealConnection.allocations</code> 用于统计和保持当前连接对象所持有的  <code>StreamAllocation</code> 数目，后续通过集合的大小来判断一个网络连接的负载量是否已经超过了最大值 <em>(往下看)</em></li>
+</ul>
+
+<h5 id="2-4-3-connectionpool-put-方法-分析">2.4.3<code>ConnectionPool.put</code>方法 分析</h5>
+
+<p>ConnectionPool.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">final</span> Deque<span style="color:#f92672">&lt;</span>RealConnection<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">connections</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span>(RealConnection <span style="color:#a6e22e">connection</span>) {
+    <span style="color:#66d9ef">assert</span> (Thread.<span style="color:#a6e22e">holdsLock</span>(<span style="color:#66d9ef">this</span>));
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>cleanupRunning) {
+      cleanupRunning <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+      executor.<span style="color:#a6e22e">execute</span>(cleanupRunnable);
+    }
+    connections.<span style="color:#a6e22e">add</span>(connection);
+}</code></pre></div>
+<ul>
+<li><strong>ConnectionPool.put()</strong>方法中，在做<strong>add</strong>连接队列前，先开启了一个<strong>异步的</strong>清理任务</li>
+<li><strong>cleanupRunnable</strong> 回收连接</li>
+</ul>
+
+<h5 id="2-4-4-connection-回收">2.4.4<code>Connection</code>回收</h5>
+
+<p>ConnectionPool.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">final</span> Runnable <span style="color:#a6e22e">cleanupRunnable</span> <span style="color:#f92672">=</span> () <span style="color:#f92672">-&gt;</span> {
+    <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
+      <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">waitNanos</span> <span style="color:#f92672">=</span> cleanup(System.<span style="color:#a6e22e">nanoTime</span>());
+      <span style="color:#66d9ef">if</span> (waitNanos <span style="color:#f92672">==</span> <span style="color:#f92672">-</span>1) <span style="color:#66d9ef">return</span>;
+      <span style="color:#66d9ef">if</span> (waitNanos <span style="color:#f92672">&gt;</span> 0) {
+        <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">waitMillis</span> <span style="color:#f92672">=</span> waitNanos <span style="color:#f92672">/</span> 1000000L;
+        waitNanos <span style="color:#f92672">-=</span> (waitMillis <span style="color:#f92672">*</span> 1000000L);
+        <span style="color:#66d9ef">synchronized</span> (ConnectionPool.<span style="color:#a6e22e">this</span>) {
+          <span style="color:#66d9ef">try</span> {
+            ConnectionPool.<span style="color:#a6e22e">this</span>.<span style="color:#a6e22e">wait</span>(waitMillis, (<span style="color:#66d9ef">int</span>) waitNanos);
+          } <span style="color:#66d9ef">catch</span> (InterruptedException <span style="color:#a6e22e">ignored</span>) {
+          }
+        }
+      }
+    }
+};
+
+ </code></pre></div>
+<ul>
+<li><code>while</code> 死循环</li>
+<li><code>waitNanos</code> 首次清理回收的时候，返回下一次开始清理回收的时间</li>
+<li><code>ConnectionPool.this.wait(waitMillis, (int) waitNanos);</code>  等待下一次清理</li>
+</ul>
+
+<p><code>cleanup()</code> 方法类似于 <strong>GC</strong> 标记清除算法不做深究，我们重点看一下如何找到最不活跃的连接</p>
+
+<p>ConnectionPool.java部分代码(cleanup调用)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">int</span> pruneAndGetAllocationCount(RealConnection <span style="color:#a6e22e">connection</span>, <span style="color:#66d9ef">long</span> <span style="color:#a6e22e">now</span>) {
+    List<span style="color:#f92672">&lt;</span>Reference<span style="color:#f92672">&lt;</span>StreamAllocation<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">references</span> <span style="color:#f92672">=</span> connection.<span style="color:#a6e22e">allocations</span>;
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> references.<span style="color:#a6e22e">size</span>(); ) {
+      Reference<span style="color:#f92672">&lt;</span>StreamAllocation<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">reference</span> <span style="color:#f92672">=</span> references.<span style="color:#a6e22e">get</span>(i);
+    
+      <span style="color:#66d9ef">if</span> (reference.<span style="color:#a6e22e">get</span>() <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+        i<span style="color:#f92672">++</span>;
+        <span style="color:#66d9ef">continue</span>;
+      }
+    
+      ....
+    
+      references.<span style="color:#a6e22e">remove</span>(i);
+      connection.<span style="color:#a6e22e">noNewStreams</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+    
+      <span style="color:#75715e">// If this was the last allocation, the connection is eligible for immediate eviction.
+</span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> (references.<span style="color:#a6e22e">isEmpty</span>()) {
+        connection.<span style="color:#a6e22e">idleAtNanos</span> <span style="color:#f92672">=</span> now <span style="color:#f92672">-</span> keepAliveDurationNs;
+        <span style="color:#66d9ef">return</span> 0;
+      }
+    }
+    
+    <span style="color:#66d9ef">return</span> references.<span style="color:#a6e22e">size</span>();
+}</code></pre></div>
+<ul>
+<li>主要就是通过判断 <code>connection.allocations</code> 集合中的 <code>StreamAllocation</code> 弱引用是否为 <code>null</code></li>
+<li><code>StreamAllocation</code> 弱引用为 <code>null</code> 时，说明已经没有代码引用了就应该调用 <code>references.remove()</code> 移除</li>
+<li><code>if (references.isEmpty())</code> 当集合为空的时候，表示目前这个连接也没有代码引用，就可以将连接进行回收了</li>
+</ul>
+
+<h4 id="2-5-callserverinterceptor">2.5. CallServerInterceptor</h4>
+
+<p>CallServerInterceptor.java部分代码</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CallServerInterceptor</span> <span style="color:#66d9ef">implements</span> <span style="color:#a6e22e">Interceptor</span> {
+  ...
+  <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Response</span> intercept(Chain <span style="color:#a6e22e">chain</span>) <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">IOException</span> {
+    <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">RealInterceptorChain</span> realChain <span style="color:#f92672">=</span> (RealInterceptorChain) chain;
+    Call <span style="color:#a6e22e">call</span> <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">call</span>();
+    <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">HttpCodec</span> httpCodec <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">httpStream</span>();
+    StreamAllocation <span style="color:#a6e22e">streamAllocation</span> <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">streamAllocation</span>();
+    RealConnection <span style="color:#a6e22e">connection</span> <span style="color:#f92672">=</span> (RealConnection) realChain.<span style="color:#a6e22e">connection</span>();
+    Request <span style="color:#a6e22e">request</span> <span style="color:#f92672">=</span> realChain.<span style="color:#a6e22e">request</span>();
+    ...
+    httpCodec.<span style="color:#a6e22e">writeRequestHeaders</span>(request);
+
+    Response.<span style="color:#a6e22e">Builder</span> <span style="color:#a6e22e">responseBuilder</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#66d9ef">if</span> (HttpMethod.<span style="color:#a6e22e">permitsRequestBody</span>(request.<span style="color:#a6e22e">method</span>()) <span style="color:#f92672">&amp;&amp;</span> request.<span style="color:#a6e22e">body</span>() <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+      <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;100-continue&#34;</span>.<span style="color:#a6e22e">equalsIgnoreCase</span>(request.<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;Expect&#34;</span>))) {
+       ...
+      }
+
+      <span style="color:#66d9ef">if</span> (responseBuilder <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+        <span style="color:#66d9ef">if</span> (request.<span style="color:#a6e22e">body</span>() <span style="color:#66d9ef">instanceof</span> DuplexRequestBody) {
+          ...
+          request.<span style="color:#a6e22e">body</span>().<span style="color:#a6e22e">writeTo</span>(bufferedRequestBody);
+        } <span style="color:#66d9ef">else</span> {
+         ...
+        }
+      } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>connection.<span style="color:#a6e22e">isMultiplexed</span>()) {
+        ...
+      }
+    }
+    ...
+    httpCodec.<span style="color:#a6e22e">finishRequest</span>();
+    ...
+    responseBuilder <span style="color:#f92672">=</span> httpCodec.<span style="color:#a6e22e">readResponseHeaders</span>(<span style="color:#66d9ef">false</span>);
+    ...
+    <span style="color:#66d9ef">if</span> (forWebSocket <span style="color:#f92672">&amp;&amp;</span> code <span style="color:#f92672">==</span> 101) {
+        ...
+    } <span style="color:#66d9ef">else</span> {
+      response <span style="color:#f92672">=</span> response.<span style="color:#a6e22e">newBuilder</span>()
+          .<span style="color:#a6e22e">body</span>(httpCodec.<span style="color:#a6e22e">openResponseBody</span>(response))
+          .<span style="color:#a6e22e">build</span>();
+    }
+
+    <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">&#34;close&#34;</span>.<span style="color:#a6e22e">equalsIgnoreCase</span>(response.<span style="color:#a6e22e">request</span>().<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;Connection&#34;</span>))
+        <span style="color:#f92672">||</span> <span style="color:#e6db74">&#34;close&#34;</span>.<span style="color:#a6e22e">equalsIgnoreCase</span>(response.<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;Connection&#34;</span>))) {
+      streamAllocation.<span style="color:#a6e22e">noNewStreams</span>();
+    }
+    ...
+
+    <span style="color:#66d9ef">return</span> response;
+  }
+}</code></pre></div>
+<ul>
+<li><code>RealInterceptorChain</code> 拦截器链，所有的网络请求由这个连接在一起来完成相应的网络请求</li>
+<li><code>HttpCodec</code> 用来编码 <code>Request</code> 和解码 <code>Response</code></li>
+<li><code>StreamAllocation</code> 用来建立Http请求需要的网络设施的组件，分配 <code>Stream</code></li>
+<li><code>RealConnection</code> OkHttp 将客户端与服务端的连接抽象成了 <code>Connection</code>, <code>RealConnection</code> 是 <code>Connection</code> 的具体实现</li>
+<li><code>Request request = realChain.request();</code> 获取请求体</li>
+<li><code>httpCodec.writeRequestHeaders(request);</code> 向 <code>Socket</code> 当中写入请求头信息</li>
+<li><code>if (&quot;100-continue&quot;.equalsIgnoreCase(request.header(&quot;Expect&quot;)))</code> 特殊情况，当 <code>Expect</code> 为 <code>100-continue</code> 时，只发送请求头，不写入请求体</li>
+<li><code>request.body().writeTo(bufferedRequestBody);</code> 非特殊情况下，向 <code>Socket</code> 写入请求体</li>
+<li><code>httpCodec.finishRequest();</code> 完成了Http请求，接下来我们要处理响应</li>
+<li><code>responseBuilder = httpCodec.readResponseHeaders(false);</code> 读取响应的头部信息</li>
+<li><code>response = response.newBuilder()
+     .body(httpCodec.openResponseBody(response))
+     .build();</code> 通过构建者模式创建响应体</li>
+<li><code>streamAllocation.noNewStreams();</code> 当我们建立好连接的时候，禁止新的流创建</li>
+</ul></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/android"><span class="tag">Android</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/okhttp"><span class="tag">OKHTTP</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        This post was published <strong>182</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

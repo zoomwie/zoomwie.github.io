@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CMake on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/tags/cmake/</link>
+    <description>Recent content in CMake on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 16 Dec 2019 20:35:22 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/tags/cmake/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Android解析Excel(xls/xlsx)</title>
+      <link>https://www.kitto.fun/post/excel_analyse/</link>
+      <pubDate>Mon, 16 Dec 2019 20:35:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/excel_analyse/</guid>
+      <description>&lt;h3 id=&#34;xls与xlsx的区别&#34;&gt;xls与xlsx的区别：&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;.xls是03版Office Microsoft Office Excel 工作表的格式,能被所有的office程序打开&lt;/li&gt;
+&lt;li&gt;.xlsx是07版Office Microsoft Office Excel 工作表的格式，只能用2007office以上的版本打开。基于XML的压缩文件格式取代了其目前专有的默认文件格式，在传统的文件名扩展名后面添加了字母x（即.docx取代.doc、.xlsx取代.xls，等等），使其占用空间更小。&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>CMake学习（01）</title>
+      <link>https://www.kitto.fun/post/cmake_01/</link>
+      <pubDate>Thu, 01 Aug 2019 20:35:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/cmake_01/</guid>
+      <description>&lt;p&gt;最近在研究 &lt;code&gt;Android&lt;/code&gt; 的 &lt;code&gt;NDK&lt;/code&gt; 开发，当前主流是使用 &lt;code&gt;CMake&lt;/code&gt; 工具来构建项目，所以学习 &lt;code&gt;CMake&lt;/code&gt; 的构建是 &lt;code&gt;NDK&lt;/code&gt; 开发的必经之路！&lt;/p&gt;
+
+&lt;p&gt;本文介绍了 &lt;code&gt;CMake&lt;/code&gt; 环境的配置并通过 &lt;code&gt;HelloWorld&lt;/code&gt; 项目来介绍 &lt;code&gt;CMake&lt;/code&gt; 的使用。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

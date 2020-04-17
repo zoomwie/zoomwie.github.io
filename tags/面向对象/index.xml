@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>面向对象 on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/</link>
+    <description>Recent content in 面向对象 on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 15 Jul 2019 20:57:25 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>代理设计模式</title>
+      <link>https://www.kitto.fun/post/design_pattern_03_proxy/</link>
+      <pubDate>Mon, 15 Jul 2019 20:57:25 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/design_pattern_03_proxy/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;静态代理:&lt;/strong&gt; 由程序员创建或工具生成代理类的源码，再编译代理类。所谓静态也就是在程序运行前就已经存在代理类的字节码文件，代理类和委托类的关系在运行前就确定了。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;动态代理:&lt;/strong&gt; 在实现阶段不用关心代理类，而在运行阶段才指定哪一个对象。&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>单例设计模式</title>
+      <link>https://www.kitto.fun/post/design_pattern_01_singleton/</link>
+      <pubDate>Wed, 03 Jul 2019 19:54:01 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/design_pattern_01_singleton/</guid>
+      <description>&lt;p&gt;单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&amp;hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+
+  <meta charset="utf-8" />
+
+  
+  <title>单例设计模式</title>
+
+  
+  
+  <link href="//cdn.jsdelivr.net" rel="dns-prefetch">
+  <link href="//cdnjs.cloudflare.com" rel="dns-prefetch">
+  
+  <link href="//at.alicdn.com" rel="dns-prefetch">
+  
+  <link href="//fonts.googleapis.com" rel="dns-prefetch">
+  <link href="//fonts.gstatic.com" rel="dns-prefetch">
+  
+  
+  
+  
+  <link href="//hm.baidu.com" rel="dns-prefetch">
+
+  
+
+  
+  <meta name="author" content="张懂">
+  <meta name="description" content="单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&amp;hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。
+">
+
+  
+  
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@gohugoio">
+    <meta name="twitter:title" content="单例设计模式">
+    <meta name="twitter:description" content="单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&amp;hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。
+">
+    <meta name="twitter:image" content="/images/avatar.png">
+  
+
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="单例设计模式">
+  <meta property="og:description" content="单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&amp;hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。
+">
+  <meta property="og:url" content="https://www.kitto.fun/post/design_pattern_01_singleton/">
+  <meta property="og:image" content="/images/avatar.png">
+
+
+
+
+<meta name="generator" content="Hugo 0.58.3">
+
+
+<link rel="canonical" href="https://www.kitto.fun/post/design_pattern_01_singleton/">
+
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no,email=no,adress=no">
+<meta http-equiv="Cache-Control" content="no-transform">
+
+
+<meta name="robots" content="index,follow">
+<meta name="referrer" content="origin-when-cross-origin">
+
+
+
+
+
+
+
+<meta name="theme-color" content="#02b875">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="张懂&#39;blog">
+<meta name="msapplication-tooltip" content="张懂&#39;blog">
+<meta name='msapplication-navbutton-color' content="#02b875">
+<meta name="msapplication-TileColor" content="#02b875">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<link rel="icon" href="https://www.kitto.fun/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.kitto.fun/icons/icon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.kitto.fun/icons/icon-32x32.png">
+<link rel="icon" sizes="192x192" href="https://www.kitto.fun/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.kitto.fun/icons/icon-152x152.png">
+<link rel="manifest" href="https://www.kitto.fun/manifest.json">
+
+
+<link rel="preload" href="https://www.kitto.fun/styles/main-rendered.min.css" as="style">
+
+
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Lobster" as="style">
+<link rel="preload" href="https://www.kitto.fun/images/avatar.png" as="image">
+<link rel="preload" href="https://www.kitto.fun/images/grey-prism.svg" as="image">
+
+
+<style>
+  body {
+    background: rgb(244, 243, 241) url('/images/grey-prism.svg') repeat fixed;
+  }
+</style>
+<link rel="stylesheet" href="https://www.kitto.fun/styles/main-rendered.min.css">
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.2/dist/medium-zoom.min.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video-js.min.css">
+
+
+
+  
+  
+<!--[if lte IE 8]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-ie8@1.1.2/dist/videojs-ie8.min.js"></script>
+<![endif]-->
+
+<!--[if lte IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-polyfill@1.2.20180112/classList.min.js"></script>
+<![endif]-->
+
+
+</head>
+  <body>
+    <div class="suspension">
+      <a role="button" aria-label="Go to top" title="Go to top" class="to-top is-hide"><span class="icon icon-up" aria-hidden="true"></span></a>
+      
+        
+      
+    </div>
+    
+    
+  <header class="site-header">
+  <a style="opacity: 1;" href="https://www.kitto.fun/"><img class="avatar" src="https://www.kitto.fun/images/avatar.png" alt="Avatar"></a>
+  
+  <h2 class="title"><a href="https://www.kitto.fun/">张懂&#39;blog</a></h2>
+  
+  <p class="subtitle">笼中飞雀得自在，夜静方闻有叹息</p>
+  <button class="menu-toggle" type="button" aria-label="Main Menu" aria-expanded="false" tab-index="0">
+    <span class="icon icon-menu" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-menu collapsed">
+    <h2 class="offscreen">Main Menu</h2>
+    <ul class="menu-list">
+      
+      
+      
+      
+        <li class="menu-item
+          
+          
+           is-active">
+          <a href="https://www.kitto.fun/">Home</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/tags/">Tags</a>
+        </li>
+      
+        <li class="menu-item
+          
+          
+          ">
+          <a href="https://www.kitto.fun/about/">About</a>
+        </li>
+      
+    </ul>
+  </nav>
+  <nav class="social-menu collapsed">
+    <h2 class="offscreen">Social Networks</h2>
+    <ul class="social-list"></ul>
+  </nav>
+</header>
+
+  <section class="main post-detail">
+    <header class="post-header">
+      <h1 class="post-title">单例设计模式</h1>
+      <p class="post-meta">@张懂 · Jul 3, 2019 · 3 min read</p>
+    </header>
+    <article class="post-content"><p>单例模式在我们工作学习和大多数应用中经常碰到。如：Windows的任务管理器（TaskManager）、Windows的回收站、以及Spring框架中的每个Bean都是单例的&hellip;本篇幅主要介绍单例的集中实现方式，以及在使用过程中的一些注意点。</p>
+
+<h2 id="一-定义与使用场景">一.定义与使用场景</h2>
+
+<ul>
+<li>在内存中一个类有且仅有一个对象实例</li>
+<li>由于单例设计模式只有一个对象实例，避免产生多个对象造成的资源浪费问题。</li>
+<li>如果一个对象需要消耗较多的资源或初始化较慢的，可以通过单例设计模式产生一个常驻内存的方式来实现。(<strong>IO操作</strong>、<strong>数据库操作</strong>、<strong>配置读取操作</strong>等)</li>
+</ul>
+
+<h2 id="二-实现方式">二.实现方式</h2>
+
+<p>代码地址：<a href="https://gitee.com/kittoZ/DesignPatternDemo">DesignPatternDemo</a></p>
+
+<blockquote>
+<p><strong>使用套路:</strong><br>1.私有构造方法<br>2.提供<code>static</code>属性<br>3.提供一个获取实例的方法 `getInstance()</p>
+</blockquote>
+
+<h3 id="1-饿汉模式">1.饿汉模式</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> HungrySingleton {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">mInstance</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HungrySingleton();
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">HungrySingleton</span>() {
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+
+}</code></pre></div>
+<ul>
+<li>在类初始化时就立即加载了对象，不管之后是不是需要使用到它，没有懒加载的优势</li>
+<li>由于在类加载时，是一个天然的线程安全的模式，所以避免了多线程并发创建对象的问题</li>
+<li>由于没有使用同步锁，所以并发调用效率较高</li>
+</ul>
+
+<h3 id="2-懒汉模式">2.懒汉模式</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LazySingleton {
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> LazySingleton <span style="color:#a6e22e">mInstance</span>;
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LazySingleton</span>() {
+
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">synchronized</span> <span style="color:#a6e22e">LazySingleton</span> getInstance() {
+        <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            mInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LazySingleton();
+        }
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+}</code></pre></div>
+<ul>
+<li><p>在类初始化时不初始化对象，在真正需要使用的时候再创建(懒加载)</p></li>
+
+<li><p>如果在单线程时 <code>synchronized</code> 关键字可以不加，但是在多线程并发的情况下就必须通过 <code>synchronized</code> 关键字来保证生成有且一个实例</p></li>
+
+<li><p>由于使用<code>synchronized</code> 关键字导致并发的时候效率不高</p></li>
+</ul>
+
+<p>插入知识点</p>
+
+<blockquote>
+<p><strong>并发编程有三个特性:</strong> <br>1.原子性<br>2.可见性<br>3.有序性</p>
+</blockquote>
+
+<p>那为什么要加 <code>synchronized</code> 关键字呢？</p>
+
+<p>因为 <code>getInstance()</code> 在被调用的时候虽然是一句代码，但是方法内部我们可以看成 <code>if(mInstance ==null)</code> 与 <code>mInstance =new LazySinleton();</code> 两个语句，这样不符合并发编程的原子性。假设A、B线程同时走到 <code>if(mInstance ==null)</code>然后A线程挂起，B线程就执行<code>mInstance =new LazySinleton();</code>，B线程执行完之后A线程则从挂起的地方开始执行，这样就又执行了<code>mInstance =new LazySinleton();</code>。违背了单例设计模式的定义。</p>
+
+<h3 id="3-双重检测锁模式-懒汉">3.双重检测锁模式（懒汉）</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LazySingleton2 {
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> LazySingleton2 <span style="color:#a6e22e">mInstance</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LazySingleton2</span>() {
+
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> LazySingleton2 <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">synchronized</span> (LazySingleton2.<span style="color:#a6e22e">class</span>) {
+                <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+                    mInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LazySingleton2();
+                }
+            }
+        }
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+}</code></pre></div>
+<ul>
+<li>在懒汉的模式上，我们将 <code>synchronized</code> 关键字移到了 <code>if (mInstance == null)</code> 里，这样避免了每次 <code>getInstance()</code> 的时候都进行同步，这样就一定程度提高了效率</li>
+</ul>
+
+<p>首先我们分析一下为什么需要两次判空</p>
+
+<ul>
+<li>第一层判空主要是为了避免不必要的同步</li>
+<li>第二层判空主要是为了确保在<code>mInstance = null</code> 情况下进行实例化。举例: 假设A、B线程同时走到 <code>synchronized</code> 进行同步，将B线程挂起后，A线程通过 <code>if (mInstance == null)</code> 判断，进行对象的实例化操作。A线程完成后，B线程就开始进判断 <code>if (mInstance == null)</code> 这时 <code>mInstance</code> 已经被实例化了，所以跳出了同步代码块。</li>
+</ul>
+
+<p>这种方法其实存在问题？</p>
+
+<ul>
+<li><p>由于 <code>mInstance = new LazySingleton2()</code> 这句代码看起来虽然只有一句，但是它并不是原子操作，它包含的操作如下</p>
+
+<ul>
+<li>1.为<code>mInstance</code>分配内存</li>
+<li>2.使用<code>LazySingleton2()</code>的构造方法初始化成员变量</li>
+<li>3.将<code>mInstance</code>对象指向分配的内存空间（执行完<code>mInstance</code>就为不等于<code>null</code>）</li>
+</ul></li>
+
+<li><p>编译器和处理器会对指令进行重排序。正常的顺应该为1-&gt;2-&gt;3，但是重排序之后，可能会将顺序变为1-&gt;3-&gt;2。我们将注意力移到第一层判空 <code>if (mInstance == null)</code> ，在判空的时候如果指令顺序以1-&gt;3-&gt;2的顺序执行，并且执行了3还未执行2时，就出现了 <code>mInstance</code> 不等于 <code>null</code> 的情况，就直接将<code>mInstance</code>返回并拿去使用，但这时<code>mInstance</code>并未完成初始化的操作，使用的一定会存在问题。总得来说就是避免其它线程可能会看到一个未完全初始化的对象实例。</p></li>
+</ul>
+
+<p>插入知识点</p>
+
+<blockquote>
+<p><strong>volatile关键字</strong><br>1.可以提供线程共享变量的可见性（体现为并发编程的可见性）<br>2.禁止指令重排序（体现为并发编程的有序性）</p>
+</blockquote>
+
+<p>那么如何避免问题的发生呢？加入<code>volatile</code>关键字，禁止指令重排序，切哪怕<code>new LazySingleton（）</code> 的顺序为 1-&gt;2-&gt;3，最终代码如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LazySingleton3 {
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">volatile</span> <span style="color:#a6e22e">LazySingleton3</span> mInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LazySingleton3</span>() {
+
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> LazySingleton3 <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">synchronized</span> (LazySingleton3.<span style="color:#a6e22e">class</span>) {
+                <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) {
+                    mInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LazySingleton3();
+                }
+            }
+        }
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+}</code></pre></div>
+<h3 id="4-静态内部类实现单例-单例推荐写法">4.静态内部类实现单例（单例推荐写法）</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> LazySingleton4 {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">LazySingleton4</span>() {
+
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> LazySingleton4 <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">return</span> SingletonHolder.<span style="color:#a6e22e">mInstance</span>;
+    }
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SingletonHolder</span> {
+        <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">LazySingleton4</span> mInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LazySingleton4();
+    }
+}</code></pre></div>
+<ul>
+<li>只有调用了<code>getInstance()</code>才会加载静态内部类（懒加载）</li>
+<li>类在加载的时候是天然线程安全的，保证内存只有一个对象实例</li>
+<li>不存在同步锁，并发调用效率高</li>
+</ul>
+
+<h3 id="5-枚举实现单例">5.枚举实现单例</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">enum</span> HungrySingleton2 {
+    INSTANCE;
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">void</span> doSomething() {
+
+    }
+}</code></pre></div>
+<ul>
+<li>用枚举实现单例写法简单</li>
+<li>由JVM提供保障，默认创建对象实例的过程就是线程安全的，并且避免了反射和反序列化的漏洞<em>（后面会提到）</em></li>
+<li>但是不具备懒加载的优势</li>
+</ul>
+
+<h3 id="6-容器实现单例-另类实现">6.容器实现单例(另类实现)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> SingletonManager {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">final</span> <span style="color:#a6e22e">Map</span><span style="color:#f92672">&lt;</span>String, Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">singleHolder</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">SingletonManager</span>() {
+
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">register</span>(String <span style="color:#a6e22e">key</span>, Object <span style="color:#a6e22e">instance</span>) {
+        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>singleHolder.<span style="color:#a6e22e">containsKey</span>(key)) {
+            singleHolder.<span style="color:#a6e22e">put</span>(key, instance);
+        }
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> Object <span style="color:#a6e22e">get</span>(String <span style="color:#a6e22e">key</span>) {
+        <span style="color:#66d9ef">return</span> singleHolder.<span style="color:#a6e22e">get</span>(key);
+    }
+}</code></pre></div>
+<ul>
+<li>我们可以程序初始化过程中（主线程），通过 <code>SingletonManager</code>注册自己项目中需要用到的单例对象，在使用的时候通过<code>key</code>来获取对象实例</li>
+<li><code>SingletonManager</code>将单例对象进行统一个管理，是一种另类的实现方式</li>
+</ul>
+
+<h2 id="三-漏洞分析">三.漏洞分析</h2>
+
+<p>这里我们不考虑枚举实现的单例（天然安全）以及容器实现单例的方式（另类实现）。下面我们使用饿汉模式进行举例。</p>
+
+<h3 id="1-通过反射破解单例模式">1.通过反射破解单例模式</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">reflect</span>() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Exception</span> {
+    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;反射创建对象:&#34;</span>);
+    Constructor <span style="color:#a6e22e">constructor</span> <span style="color:#f92672">=</span> HungrySingleton.<span style="color:#a6e22e">class</span>.<span style="color:#a6e22e">getDeclaredConstructor</span>();
+    constructor.<span style="color:#a6e22e">setAccessible</span>(<span style="color:#66d9ef">true</span>);
+    HungrySingleton <span style="color:#a6e22e">instance3</span> <span style="color:#f92672">=</span> (HungrySingleton) constructor.<span style="color:#a6e22e">newInstance</span>();
+    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(instance3 <span style="color:#f92672">==</span> HungrySingleton.<span style="color:#a6e22e">getInstance</span>());
+}</code></pre></div>
+<p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">反射创建对象:
+false</code></pre></div>
+<p>通过反射获得到对象的构造方法，之后就能实例化对象。这样内存中就存在两个不同的对象实例，就破解了单例模式。那么我们怎么避免这种现象呢？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> HungrySingleton {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">mInstance</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HungrySingleton();
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">HungrySingleton</span>() {
+        <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException();
+        }
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+}</code></pre></div>
+<p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">反射创建对象:
+Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0<span style="color:#f92672">(</span>Native Method<span style="color:#f92672">)</span>
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance<span style="color:#f92672">(</span>NativeConstructorAccessorImpl.java:62<span style="color:#f92672">)</span>
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance<span style="color:#f92672">(</span>DelegatingConstructorAccessorImpl.java:45<span style="color:#f92672">)</span>
+	at java.lang.reflect.Constructor.newInstance<span style="color:#f92672">(</span>Constructor.java:423<span style="color:#f92672">)</span>
+	at com.zzz.design.singleton.Client.reflect<span style="color:#f92672">(</span>Client.java:75<span style="color:#f92672">)</span>
+	at com.zzz.design.singleton.Client.main<span style="color:#f92672">(</span>Client.java:20<span style="color:#f92672">)</span>
+Caused by: java.lang.RuntimeException
+	at com.zzz.design.singleton.hungry.HungrySingleton.&lt;init&gt;<span style="color:#f92672">(</span>HungrySingleton.java:12<span style="color:#f92672">)</span>
+	... <span style="color:#ae81ff">6</span> more</code></pre></div>
+<p>在构造方法中进行判空操作，如果对象不为空则抛出异常，防止二次创建对象。</p>
+
+<h3 id="2-序列化破解单例模式-实现-serializable-的情况">2.序列化破解单例模式（实现<code>Serializable</code>的情况）</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">Serializable</span>() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">Exception</span> {
+    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;序列化创建对象:&#34;</span>);
+    String <span style="color:#a6e22e">property</span> <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">getProperty</span>(<span style="color:#e6db74">&#34;user.dir&#34;</span>);
+    HungrySingleton <span style="color:#a6e22e">instance1</span> <span style="color:#f92672">=</span> HungrySingleton.<span style="color:#a6e22e">getInstance</span>();
+    File <span style="color:#a6e22e">objectFile</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> File(property, <span style="color:#e6db74">&#34;singleton.txt&#34;</span>);
+    <span style="color:#75715e">//序列化
+</span><span style="color:#75715e"></span>    FileOutputStream <span style="color:#a6e22e">fos</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileOutputStream(objectFile);
+    ObjectOutputStream <span style="color:#a6e22e">oos</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectOutputStream(fos);
+    oos.<span style="color:#a6e22e">writeObject</span>(instance1);
+    oos.<span style="color:#a6e22e">close</span>();
+    fos.<span style="color:#a6e22e">close</span>();
+    <span style="color:#75715e">//反序列化
+</span><span style="color:#75715e"></span>    FileInputStream <span style="color:#a6e22e">fis</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FileInputStream(objectFile);
+    ObjectInputStream <span style="color:#a6e22e">ois</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectInputStream(fis);
+    HungrySingleton <span style="color:#a6e22e">instance2</span> <span style="color:#f92672">=</span> (HungrySingleton) ois.<span style="color:#a6e22e">readObject</span>();
+    ois.<span style="color:#a6e22e">close</span>();
+    fis.<span style="color:#a6e22e">close</span>();
+    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(instance1 <span style="color:#f92672">==</span> instance2);
+}</code></pre></div>
+<p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">序列化创建对象:
+<span style="color:#66d9ef">false</span></code></pre></div>
+<p>我们通过序列化将单例对象写入文件，之后再通过反序列化得到的对像是不同的，违背了单例的原则。那么我们需要怎么避免这种现象的发生呢？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">class</span> HungrySingleton <span style="color:#a6e22e">implements</span> Serializable {
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">mInstance</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HungrySingleton();
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">HungrySingleton</span>() {
+        <span style="color:#66d9ef">if</span> (mInstance <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException();
+        }
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">static</span> HungrySingleton <span style="color:#a6e22e">getInstance</span>() {
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+
+    <span style="color:#66d9ef">private</span> <span style="color:#a6e22e">Object</span> readResolve() <span style="color:#66d9ef">throws</span> <span style="color:#a6e22e">ObjectStreamException</span> {
+        <span style="color:#66d9ef">return</span> mInstance;
+    }
+}</code></pre></div>
+<p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">序列化创建对象:
+<span style="color:#66d9ef">true</span></code></pre></div>
+<p>我们在类中定义了<code>readResovle()</code>，如果这时候进行反序列化，则直接返回该方法指定的对象，而不是重新创建对象。</p>
+
+<p>到这里我们就分析了单例中存在的漏洞问题，平常写代码的时候多注意细节，如果内部自己使用可以忽略，但是外发SDK、APK之类的时候就要稍微注意了，别人可以<code>HOOK</code>你的实例做一些事情&hellip;.</p></article>
+    <footer class="post-footer">
+      
+      <ul class="post-tags">
+        
+          <li><a href="https://www.kitto.fun/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="tag">面向对象</span></a></li>
+        
+          <li><a href="https://www.kitto.fun/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="tag">设计模式</span></a></li>
+        
+      </ul>
+      
+      <p class="post-copyright">
+        This post was published <strong>180</strong> days ago, content in the post may be inaccurate, even wrong now, please take risk yourself.
+      </p>
+    </footer>
+	<div class="post-comment">
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
+ 
+<div id="gitalk-container"></div>
+    <script type="text/javascript">
+    var gitalk = new Gitalk({
+    
+        clientID: '62744851c68953d98cd0',
+        clientSecret: '97f14bfeee3a80d0d128d4284cc30390236ee136',
+        repo: 'kittozzz.github.io',
+        owner: 'KittoZZZ',
+        admin: ['KittoZZZ'],
+        id: location.pathname,
+		labels: ['Gitalk'],
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script></div>
+    
+      
+    
+  </section>
+  
+<footer class="site-footer">
+  <p>© 2017-2019 张懂&#39;blog</p>
+  <p>Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> with theme <a href="https://github.com/laozhu/hugo-nuo" target="_blank" rel="noopener">Nuo</a>.</p>
+  
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/smooth-scroll@15.0.0/dist/smooth-scroll.min.js"></script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/video.js@7.3.0/dist/video.min.js"></script>
+
+
+
+
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true,
+      processEnvironments: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+      TeX: { equationNumbers: { autoNumber: "AMS" },
+      extensions: ["AMSmath.js", "AMSsymbols.js"] }
+    },
+  });
+</script>
+<script type="text/x-mathjax-config">
+  // Fix <code> tags after MathJax finishes running. This is a
+  // hack to overcome a shortcoming of Markdown. Discussion at
+  // https://github.com/mojombo/jekyll/issues/199
+  MathJax.Hub.Queue(() => {
+    MathJax.Hub.getAllJax().map(v => v.SourceElement().parentNode.className += ' has-jax');
+  });
+</script>
+
+
+
+<script src="https://www.kitto.fun/scripts/index.min.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('\/service-worker.js').then(function() {
+      console.log('[ServiceWorker] Registered');
+    });
+  }
+</script>
+
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?49efcd5657ac3201a1c56ed83c7ca980";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+  </body>
+</html>

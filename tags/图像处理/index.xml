@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>图像处理 on 张懂&#39;blog</title>
+    <link>https://www.kitto.fun/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/</link>
+    <description>Recent content in 图像处理 on 张懂&#39;blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 21 Nov 2019 20:00:22 +0800</lastBuildDate>
+    
+	<atom:link href="https://www.kitto.fun/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Android图像半色调处理</title>
+      <link>https://www.kitto.fun/post/bayer/</link>
+      <pubDate>Thu, 21 Nov 2019 20:00:22 +0800</pubDate>
+      
+      <guid>https://www.kitto.fun/post/bayer/</guid>
+      <description>&lt;p&gt;本文介绍在工作期间接触的图像处理，在此做一个总结。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
